@@ -1,0 +1,11 @@
+worklog
+
+https://github.com/reagent-project/reagent
+https://clojure.org/guides/learn/sequential_colls#_vectors
+https://clojure.org/api/cheatsheet
+https://www.cis.upenn.edu/~matuszek/Concise%20Guides/Concise%20Clojure.html
+https://rigsomelight.com/figwheel-main-template/
+https://clojurescript.org/guides/quick-start
+https://github.com/bhauman/figwheel-main
+https://github.com/bhauman/figwheel-main-template
+https://stackoverflow.com/questions/22127021/how-to-open-existing-clojure-project-in-eclipse

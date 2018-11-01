@@ -14,10 +14,30 @@
 (defn get-app-element []
   (gdom/getElement "app"))
 
+(defn nice-table [postfix]
+  [:table {:style {:border "1px solid black"}}
+   [:thead [:tr
+     [:td "First Name " postfix]
+     [:td "Last Name " postfix]
+     [:td "Sex "postfix]
+    ]]
+   [:tbody
+    [:tr
+	    [:td "Scott"]
+	    [:td "Sinclair"]
+	    [:td "male"]
+    ]
+   ]
+  ])
+
 (defn hello-world []
   [:div
    [:h1 (:text @app-state)]
-   [:h3 "Edit this in src/clojact/core.cljs and watch it change!"]])
+   [:h3 "Edit this in src/clojact/core.cljs and watch it change alot!"]
+   [:p "This is a simple paragraph with some " [:b "Bold text!"]]
+   [nice-table "!"]
+   ])
+
 
 (defn mount [el]
   (reagent/render-component [hello-world] el))
