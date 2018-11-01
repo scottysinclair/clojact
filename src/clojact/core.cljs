@@ -2,11 +2,10 @@
   (:require
    [goog.dom :as gdom]
    [reagent.core :as reagent :refer [atom]]
-   [clojact.components :as comps]
+   [clojact.accounting.view :as accv]
    [reagent-material-ui.core :as ui]))
 
 ;; some helpers
-(def el reagent/as-element)
 (defn icon [nme] [ui/FontIcon {:className "material-icons"} nme])
 (defn color [nme] (aget ui/colors nme))
 
@@ -26,41 +25,17 @@
   (gdom/getElement "app"))
 
 
-(defn react-app []
- (let [is-open? (reagent/atom true)
-      close #(reset! is-open? false)]
-   (fn []
-     (println "render!!!")
-     [:div
-     [ui/AppBar {:title "Accounting" :onLeftIconButtonTouchTap #(reset! is-open? true) } ]
-      [ui/Drawer {:open @is-open? :docked true}
-       [ui/List
-         [ui/ListItem {:leftIcon (el [:i.material-icons "Options"])
-                       :on-click (fn []
-                                   (println "click item")
-                                   (close))}
-          ]
-         [ui/Divider]
-         [ui/ListItem {:on-click (fn [] (close))} "Overview" ]
-         [ui/ListItem "Booking"]
-         [ui/ListItem "Reports"]
-         [ui/ListItem "Settings"]
-         ]]
-      ]
-   )
-  )
-)
 
-(defn hello-world []
+(defn main []
   [ui/MuiThemeProvider theme-defaults
    [:div
-    [react-app]
+    [accv/react-app]
    ]]
  )
 
 
 (defn mount [el]
-  (reagent/render-component [hello-world] el))
+  (reagent/render-component [main] el))
 
 (defn mount-app-element []
   (when-let [el (get-app-element)]
