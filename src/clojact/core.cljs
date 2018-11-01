@@ -2,44 +2,53 @@
   (:require
    [goog.dom :as gdom]
    [reagent.core :as reagent :refer [atom]]
-   [clojact.components :as comps]))
+   [clojact.components :as comps]
+   [reagent-material-ui.core :as ui]))
+
+;; some helpers
+(def el reagent/as-element)
+(defn icon [nme] [ui/FontIcon {:className "material-icons"} nme])
+(defn color [nme] (aget ui/colors nme))
+
+;; create a new theme based on the dark theme from Material UI
+(defonce theme-defaults {:muiTheme (ui/getMuiTheme
+                                    (-> ui/darkBaseTheme
+                                        (js->clj :keywordize-keys true)
+                                        (update :palette merge {:primary1Color (color "amber500")
+                                                                :primary2Color (color "amber700")})
+                                        clj->js))})
+
+
 
 (println "This text is printed from src/clojact/core.cljs. Go ahead and edit it and see reloading in action.")
-
-(defn multiply [a b] (* a b))
-
-
-;; define your app data so that it doesn't get over-written on reload
-(defonce app-state (atom {:text "Hello world!"}))
 
 (defn get-app-element []
   (gdom/getElement "app"))
 
-(defn nice-table [postfix]
-  [:table {:style {:border "1px solid black"}}
-   [:thead [:tr
-     [:td "First Name " postfix]
-     [:td "Last Name " postfix]
-     [:td "Sex "postfix]
-    ]]
-   [:tbody
-    [:tr
-	    [:td "Scott"]
-	    [:td "Sinclair"]
-	    [:td "male"]
-    ]
-   ]
-  ])
 
+(defn react-app []
+
+ (let [is-open? (atom false)
+        close #(reset! is-open? false)])
+   (fn []
+     [:div
+     [ui/AppBar {:title "Accounting" :onLeftIconButtonTouchTap (fn [] (println "tap")) } ]
+      [ui/Drawer {:open true :docked true}
+       [ui/List
+         [ui/ListItem {:leftIcon (el [:i.material-icons "home"])
+                       :on-click (fn []
+                                   (println "click item"))}
+          "Home"]]]
+      ]
+   )
+)
 
 (defn hello-world []
-  [:div
-   [:h1 (:text @app-state)]
-   [:h3 "Edit this in src/clojact/core.cljs and watch it change alot!"]
-   [:p "This is a simple paragraph with some " [:b "Bold text!"]]
-   [nice-table "!"]
-   [comps/counting-component]
-   ])
+  [ui/MuiThemeProvider theme-defaults
+   [:div
+    [react-app]
+   ]]
+ )
 
 
 (defn mount [el]
