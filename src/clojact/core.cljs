@@ -27,20 +27,28 @@
 
 
 (defn react-app []
-
- (let [is-open? (atom false)
-        close #(reset! is-open? false)])
+ (let [is-open? (reagent/atom true)
+      close #(reset! is-open? false)]
    (fn []
+     (println "render!!!")
      [:div
-     [ui/AppBar {:title "Accounting" :onLeftIconButtonTouchTap (fn [] (println "tap")) } ]
-      [ui/Drawer {:open true :docked true}
+     [ui/AppBar {:title "Accounting" :onLeftIconButtonTouchTap #(reset! is-open? true) } ]
+      [ui/Drawer {:open @is-open? :docked true}
        [ui/List
-         [ui/ListItem {:leftIcon (el [:i.material-icons "home"])
+         [ui/ListItem {:leftIcon (el [:i.material-icons "Options"])
                        :on-click (fn []
-                                   (println "click item"))}
-          "Home"]]]
+                                   (println "click item")
+                                   (close))}
+          ]
+         [ui/Divider]
+         [ui/ListItem {:on-click (fn [] (close))} "Overview" ]
+         [ui/ListItem "Booking"]
+         [ui/ListItem "Reports"]
+         [ui/ListItem "Settings"]
+         ]]
       ]
    )
+  )
 )
 
 (defn hello-world []
