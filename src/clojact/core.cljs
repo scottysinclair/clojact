@@ -1,7 +1,8 @@
 (ns ^:figwheel-hooks clojact.core
   (:require
    [goog.dom :as gdom]
-   [reagent.core :as reagent :refer [atom]]))
+   [reagent.core :as reagent :refer [atom]]
+   [clojact.components :as comps]))
 
 (println "This text is printed from src/clojact/core.cljs. Go ahead and edit it and see reloading in action.")
 
@@ -30,15 +31,6 @@
    ]
   ])
 
-(def click-count (reagent/atom 8))
-
-(defn inc-by2 [val](+ val 2))
-
-(defn counting-component []
-  [:div
-   "The atom " [:code "click-count"] " has value " @click-count "."
-   [:input  {:type "button" :value "click-me" :on-click #(swap! click-count inc-by2)}]
-  ])
 
 (defn hello-world []
   [:div
@@ -46,7 +38,7 @@
    [:h3 "Edit this in src/clojact/core.cljs and watch it change alot!"]
    [:p "This is a simple paragraph with some " [:b "Bold text!"]]
    [nice-table "!"]
-   [counting-component]
+   [comps/counting-component]
    ])
 
 
