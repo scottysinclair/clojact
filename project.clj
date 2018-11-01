@@ -9,7 +9,8 @@
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.10.339"]
                  [reagent "0.8.1"]
-                 [reagent-material-ui "0.2.5"]]
+                 [reagent-material-ui "0.2.5"]
+                 [re-frame "0.10.5"]]
 
   :plugins [[lein2-eclipse "2.0.0"]]
 
