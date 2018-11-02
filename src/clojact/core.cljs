@@ -95,8 +95,65 @@
             :value @(rf/subscribe [:time-color])
             :on-change #(rf/dispatch [:time-color-change (-> % .-target .-value)])}]])  ;; <---
 
+(defn booking-table
+  []
+  [ui/Paper
+  [:table.booking-table
+   [:thead
+     [:tr
+	     [:td "Date"]
+	     [:td "Category"]
+	     [:td "Comment"]
+	     [:td "Amount"]
+     ]
+    ]
+    [:tbody
+     [:tr
+	     [:td "01.01.2011"]
+	     [:td "Food"]
+	     [:td "..."]
+	     [:td "10.34"]
+     ]
+     ]]
+  ])
 
+(defn category-table
+  []
+  [:div.category-table "Categories"])
 
+(defn navigation-panel
+  []
+  [:div.navigation-panel
+   "January 2018"
+   [ui/TextField {
+                  :id "date" 
+                  :label "Month" 
+                  :type "date" 
+                  :defaultValue "2018-01-01"}]
+   ])
+
+(defn booking-page
+   []
+   [:div.booking-page
+   [navigation-panel]
+   [booking-table]
+   [category-table]
+   ])
+
+(defn drawer
+  []
+  [ui/Drawer {:open @(rf/subscribe [:drawer-open]) :docked true}
+    [ui/List
+      [ui/ListItem {:leftIcon (el [:i.material-icons "Options"])
+                    :on-click #(rf/dispatch [:toggle-app-drawer])
+      }]
+       [ui/Divider]
+       [ui/ListItem {:on-click #(rf/dispatch [:toggle-app-drawer])} "Overview" ]
+       [ui/ListItem "Booking"]
+       [ui/ListItem "Reports"]
+       [ui/ListItem "Settings"]
+    ]
+   ])
 
 
 (defn ui
@@ -104,21 +161,9 @@
   [ui/MuiThemeProvider theme-defaults
    [:div
      [ui/AppBar {:title "Accounting" :onLeftIconButtonTouchTap #(rf/dispatch [:toggle-app-drawer])  } ]
-     [ui/Drawer {:open @(rf/subscribe [:drawer-open]) :docked true}
-       [ui/List
-         [ui/ListItem {:leftIcon (el [:i.material-icons "Options"])
-                       :on-click #(rf/dispatch [:toggle-app-drawer])
-         }]
-          [ui/Divider]
-          [ui/ListItem {:on-click #(rf/dispatch [:toggle-app-drawer])} "Overview" ]
-          [ui/ListItem "Booking"]
-          [ui/ListItem "Reports"]
-          [ui/ListItem "Settings"]
-       ]
+     [drawer]
+     [booking-page]
      ]
-    [:h1 "Hello world, it is now"]
-    [clock]
-    [color-input]]
    ])
 
 
