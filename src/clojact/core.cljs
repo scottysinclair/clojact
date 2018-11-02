@@ -76,6 +76,21 @@
   (fn [db _]
     (:drawer-open db)))
 
+(rf/reg-sub
+  :bookings
+  (fn [_ _]
+    (list 
+      {:id 1
+       :date "01.01.2001"
+       :category "Food"
+       :comment "...."
+       :amount "82.21"}
+      {:id 2
+       :date "02.01.2001"
+       :category "Rent"
+       :comment "...."
+       :amount "820"}      )))
+
 ;; -- Domino 5 - View Functions ----------------------------------------------
 
 (defn clock
@@ -95,6 +110,17 @@
             :value @(rf/subscribe [:time-color])
             :on-change #(rf/dispatch [:time-color-change (-> % .-target .-value)])}]])  ;; <---
 
+(defn booking-table-row
+   [booking]
+;;   (println booking)
+   [ui/TableRow {:id (get booking :id)}
+		  [ui/TableRowColumn (get booking :date)]
+		  [ui/TableRowColumn (get booking :category)]
+		  [ui/TableRowColumn (get booking :comment)]
+		  [ui/TableRowColumn (get booking :amount)]
+	  ])
+
+
 (defn booking-table
   []
   (let [bookings @(rf/subscribe [:bookings])]
@@ -107,31 +133,11 @@
 		      [ui/TableHeaderColumn "Amount"]
 	    ]
 	    [ui/TableBody
-        (for [booking bookings)
-           ^{:key (:id booking)} [booking-table-row]
-	     [ui/TableRow
-		     [ui/TableRowColumn "01.01.2011"]
-		     [ui/TableRowColumn "Foods"]
-		     [ui/TableRowColumn 
-	         [ui/TextField {:value "Must eat...."}]
-	       ]
-		     [ui/TableRowColumn 
-	         [ui/TextField {:value "82.0"}]
-	       ]
-	     ]
-	     [ui/TableRow
-		     [ui/TableRowColumn "02.01.2011"]
-		     [ui/TableRowColumn "Rent"]
-		     [ui/TableRowColumn 
-	         [ui/TextField {:value "Renting sucks the big one"}]
-	       ]
-		     [ui/TableRowColumn 
-	         [ui/TextField {:value "820.0"}]
-	       ]
-	     ]
-	     ]]
-  ]))
-
+        (for [booking bookings]
+           ^{:key (:id booking)} [booking-table-row booking]
+	     )]
+  ]]))
+        
 (defn category-table
   []
   [:div.category-table "Categories"
