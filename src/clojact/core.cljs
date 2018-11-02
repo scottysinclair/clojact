@@ -5,7 +5,22 @@
    [reagent-material-ui.core :as ui]
    [re-frame.core :as rf]
    [clojure.string :as str]
+   [reagent-material-ui.core :as ui]
    ))
+
+
+;;material ui
+(def el reagent/as-element)
+(defn icon [nme] [ui/FontIcon {:className "material-icons"} nme])
+(defn color [nme] (aget ui/colors nme))
+
+;; create a new theme based on the dark theme from Material UI
+(defonce theme-defaults {:muiTheme (ui/getMuiTheme
+                                    (-> ui/darkBaseTheme
+                                        (js->clj :keywordize-keys true)
+                                        (update :palette merge {:primary1Color (color "amber500")
+                                                                :primary2Color (color "amber700")})
+                                        clj->js))})
 
 
 ;; -- Domino 1 - Event Dispatch -----------------------------------------------
@@ -24,7 +39,9 @@
   :initialize                 ;; usage:  (dispatch [:initialize])
   (fn [_ _]                   ;; the two parameters are not important here, so use _
     {:time (js/Date.)         ;; What it returns becomes the new application state
-     :time-color "#f88"}))    ;; so the application state will initially be a map with two keys
+     :time-color "#f88"
+     :drawer-open false
+     }))    ;; so the application state will initially be a map with two keys
 
 (rf/reg-event-db                ;; usage:  (dispatch [:time-color-change 34562])
   :time-color-change            ;; dispatched when the user enters a new colour into the UI text field
@@ -36,6 +53,13 @@
   (fn [db [_ new-time]]          ;; note how the 2nd parameter is destructured to obtain the data value
     (assoc db :time new-time)))  ;; compute and return the new application state
 
+
+(rf/reg-event-db                ;;the drawer open state is switched.
+   :toggle-app-drawer
+   (fn [db _]
+     (assoc db :drawer-open (not (get db :drawer-open)))
+   ))
+
 ;; -- Domino 4 - Query  -------------------------------------------------------
 (rf/reg-sub
   :time
@@ -46,6 +70,11 @@
   :time-color
   (fn [db _]
     (:time-color db)))
+
+(rf/reg-sub
+  :drawer-open
+  (fn [db _]
+    (:drawer-open db)))
 
 ;; -- Domino 5 - View Functions ----------------------------------------------
 
@@ -66,26 +95,31 @@
             :value @(rf/subscribe [:time-color])
             :on-change #(rf/dispatch [:time-color-change (-> % .-target .-value)])}]])  ;; <---
 
+
+
+
+
 (defn ui
   []
-  [:div
-   [:h1 "Hello world, it is now"]
-   [clock]
-   [color-input]])
-
-
-;; some helpers
-(defn icon [nme] [ui/FontIcon {:className "material-icons"} nme])
-(defn color [nme] (aget ui/colors nme))
-
-;; create a new theme based on the dark theme from Material UI
-(defonce theme-defaults {:muiTheme (ui/getMuiTheme
-                                    (-> ui/darkBaseTheme
-                                        (js->clj :keywordize-keys true)
-                                        (update :palette merge {:primary1Color (color "amber500")
-                                                                :primary2Color (color "amber700")})
-                                        clj->js))})
-
+  [ui/MuiThemeProvider theme-defaults
+   [:div
+     [ui/AppBar {:title "Accounting" :onLeftIconButtonTouchTap #(rf/dispatch [:toggle-app-drawer])  } ]
+     [ui/Drawer {:open @(rf/subscribe [:drawer-open]) :docked true}
+       [ui/List
+         [ui/ListItem {:leftIcon (el [:i.material-icons "Options"])
+                       :on-click #(rf/dispatch [:toggle-app-drawer])
+         }]
+          [ui/Divider]
+          [ui/ListItem {:on-click #(rf/dispatch [:toggle-app-drawer])} "Overview" ]
+          [ui/ListItem "Booking"]
+          [ui/ListItem "Reports"]
+          [ui/ListItem "Settings"]
+       ]
+     ]
+    [:h1 "Hello world, it is now"]
+    [clock]
+    [color-input]]
+   ])
 
 
 (println "This text is printed from src/clojact/core.cljs. Go ahead and edit it and see reloading in action.")
