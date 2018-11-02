@@ -85,11 +85,7 @@
        :category "Food"
        :comment "...."
        :amount "82.21"}
-      {:id 2
-       :date "02.01.2001"
-       :category "Rent"
-       :comment "...."
-       :amount "820"}      )))
+      )))
 
 ;; -- Domino 5 - View Functions ----------------------------------------------
 
@@ -110,14 +106,25 @@
             :value @(rf/subscribe [:time-color])
             :on-change #(rf/dispatch [:time-color-change (-> % .-target .-value)])}]])  ;; <---
 
+
+(defn category-select-field
+  [category]
+  [ui/SelectField {:value category}
+   [ui/MenuItem {:id "Food"} "Food"]
+   [ui/MenuItem {:id "Rent"} "Rent"]
+   [ui/MenuItem {:id "Lunch"} "Lunch"]
+   ]
+)
+
+
 (defn booking-table-row
    [booking]
 ;;   (println booking)
    [ui/TableRow {:id (get booking :id)}
 		  [ui/TableRowColumn (get booking :date)]
-		  [ui/TableRowColumn (get booking :category)]
-		  [ui/TableRowColumn (get booking :comment)]
-		  [ui/TableRowColumn (get booking :amount)]
+		  [ui/TableRowColumn [category-select-field (get booking :category)]]
+		  [ui/TableRowColumn [ui/TextField {:value (get booking :comment)}]]
+		  [ui/TableRowColumn [ui/TextField {:value (get booking :amount)}]]
 	  ])
 
 
@@ -134,7 +141,7 @@
 	    ]
 	    [ui/TableBody
         (for [booking bookings]
-           ^{:key (:id booking)} [booking-table-row booking]
+            [booking-table-row booking]
 	     )]
   ]]))
         
