@@ -97,29 +97,63 @@
 
 (defn booking-table
   []
-  [ui/Paper
-  [:table.booking-table
-   [:thead
-     [:tr
-	     [:td "Date"]
-	     [:td "Category"]
-	     [:td "Comment"]
-	     [:td "Amount"]
-     ]
-    ]
-    [:tbody
-     [:tr
-	     [:td "01.01.2011"]
-	     [:td "Food"]
-	     [:td "..."]
-	     [:td "10.34"]
-     ]
-     ]]
-  ])
+  (let [bookings @(rf/subscribe [:bookings])]
+	  [ui/Paper
+	  [ui/Table
+	   [ui/TableHeader {:displaySelectAll false}
+		      [ui/TableHeaderColumn "Date"]
+		      [ui/TableHeaderColumn "Category"]
+		      [ui/TableHeaderColumn "Comment"]
+		      [ui/TableHeaderColumn "Amount"]
+	    ]
+	    [ui/TableBody
+        (for [booking bookings)
+           ^{:key (:id booking)} [booking-table-row]
+	     [ui/TableRow
+		     [ui/TableRowColumn "01.01.2011"]
+		     [ui/TableRowColumn "Foods"]
+		     [ui/TableRowColumn 
+	         [ui/TextField {:value "Must eat...."}]
+	       ]
+		     [ui/TableRowColumn 
+	         [ui/TextField {:value "82.0"}]
+	       ]
+	     ]
+	     [ui/TableRow
+		     [ui/TableRowColumn "02.01.2011"]
+		     [ui/TableRowColumn "Rent"]
+		     [ui/TableRowColumn 
+	         [ui/TextField {:value "Renting sucks the big one"}]
+	       ]
+		     [ui/TableRowColumn 
+	         [ui/TextField {:value "820.0"}]
+	       ]
+	     ]
+	     ]]
+  ]))
 
 (defn category-table
   []
-  [:div.category-table "Categories"])
+  [:div.category-table "Categories"
+  [ui/Paper
+  [ui/Table
+   [ui/TableHeader
+	      [ui/TableHeaderColumn "Category"]
+	      [ui/TableHeaderColumn "Total"]
+    ]
+    [ui/TableBody
+     [ui/TableRow
+	     [ui/TableRowColumn "Food"]
+	     [ui/TableRowColumn "10"]
+     ]
+     [ui/TableRow
+	     [ui/TableRowColumn "Rent"]
+	     [ui/TableRowColumn "20"]
+     ]
+     ]
+   ]
+   ]
+  ])
 
 (defn navigation-panel
   []
@@ -137,6 +171,8 @@
    [:div.booking-page
    [navigation-panel]
    [booking-table]
+
+
    [category-table]
    ])
 
