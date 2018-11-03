@@ -41,6 +41,7 @@
     {:time (js/Date.)         ;; What it returns becomes the new application state
      :time-color "#f88"
      :drawer-open false
+     :all-categories (vector {:id 1 :name "Food"} {:id 2 :name "Rent"} {:id 3 :name "Lunch"})
      :bookings (vector 
       {:id 1
        :date "01.01.2001"
@@ -94,6 +95,20 @@
            new-value (get event 2)]
         (updateBooking db booking :amount new-value))))
 
+(rf/reg-event-db
+    :booking-date-change
+   (fn [db event]
+     (let [booking (get event 1)
+           new-value (get event 2)]
+        (updateBooking db booking :date new-value))))
+
+(rf/reg-event-db
+    :booking-category-change
+   (fn [db event]
+     (let [booking (get event 1)
+           new-value (get event 2)]
+        (updateBooking db booking :category new-value))))
+
 
 ;; -- Domino 4 - Query  -------------------------------------------------------
 (rf/reg-sub
@@ -116,6 +131,11 @@
   (fn [db _]
     (:bookings db)))
 
+(rf/reg-sub
+  :all-categories
+  (fn [db _]
+    (:all-categories db)))
+
 ;; -- Domino 5 - View Functions ----------------------------------------------
 
 (defn clock
@@ -137,21 +157,28 @@
 
 
 (defn category-select-field
-  [category]
-  [ui/SelectField {:value category}
-   [ui/MenuItem {:id "Food"} "Food"]
-   [ui/MenuItem {:id "Rent"} "Rent"]
-   [ui/MenuItem {:id "Lunch"} "Lunch"]
-   ]
-)
+  [booking]
+  (let [cat-list @(rf/subscribe [:all-categories])
+        category (get booking :category)]
+	  [ui/SelectField {
+                    :value (:id category) 
+                    :onChange #(rf/dispatch [:booking-category-change booking (get cat-list %2)])
+                    :renderValue #([:input {:value %}])
+                    }
+    (for [cat  cat-list]
+	   [ui/MenuItem {:id (:id cat)} (:name cat)]
+    )
+	  ]
+))
 
 
 (defn booking-table-row
    [booking]
 ;;   (println booking)
    [ui/TableRow {:id (get booking :id)}
-		  [ui/TableRowColumn (get booking :date)]
-		  [ui/TableRowColumn [category-select-field (get booking :category)]]
+		  [ui/TableRowColumn [ui/TextField {:value (get booking :date) 
+                                                           :onChange #(rf/dispatch [:booking-date-change booking (-> % .-target .-value)]) }]]
+		  [ui/TableRowColumn [category-select-field booking]]
 		  [ui/TableRowColumn [ui/TextField {:value (get booking :comment)
                                         :onChange #(rf/dispatch [:booking-comment-change booking (-> % .-target .-value)]) }]]
 		  [ui/TableRowColumn [ui/TextField {:value (get booking :amount) 

@@ -12,3 +12,11 @@ https://stackoverflow.com/questions/22127021/how-to-open-existing-clojure-projec
 https://github.com/DaveWM/reagent-material-ui
 https://github.com/reagent-project/reagent/blob/master/doc/ManagingState.md
 https://github.com/Day8/re-frame
+
+
+
+	  [:select {:value category :onChange #(rf/dispatch [:booking-category-change booking (.. % -target -value)]) }
+	   [:option {:value "Food"} "Food"]
+	   [:option {:value "Rent"} "Rent"]
+	   [:option {:value "Lunch"} "Lunch"]
+	   ]
