@@ -1,2 +1,17 @@
 /* some style */
+div.booking-page-tables {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: flex-start;
+}
 
+div.booking-table {
+	flex-basis: 74%;
+	flex-grow: 0;
+}
+
+div.category-table {
+	flex-basis: 25%;
+	flex-grow: 0;
+}

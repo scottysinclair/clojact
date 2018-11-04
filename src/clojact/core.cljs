@@ -166,7 +166,10 @@
                     :renderValue #([:input {:value %}])
                     }
     (for [cat  cat-list]
-	   [ui/MenuItem {:id (:id cat)} (:name cat)]
+	   [ui/MenuItem {
+                  :key (:id cat) 
+                  :id (:id cat)
+                  }(:name cat)]
     )
 	  ]
 ))
@@ -175,27 +178,27 @@
 (defn booking-table-row
    [booking]
 ;;   (println booking)
-   [ui/TableRow {:id (get booking :id)}
-		  [ui/TableRowColumn [ui/TextField {:value (get booking :date) 
-                                                           :onChange #(rf/dispatch [:booking-date-change booking (-> % .-target .-value)]) }]]
-		  [ui/TableRowColumn [category-select-field booking]]
-		  [ui/TableRowColumn [ui/TextField {:value (get booking :comment)
+   [ui/TableRow {:key (:id booking)}
+		  [ui/TableRowColumn {:key "date"} [ui/TextField {:value (get booking :date) 
+                                                    :onChange #(rf/dispatch [:booking-date-change booking (-> % .-target .-value)]) }]]
+		  [ui/TableRowColumn {:key "cat"} [category-select-field booking]]
+		  [ui/TableRowColumn {:key "com"} [ui/TextField {:value (get booking :comment)
                                         :onChange #(rf/dispatch [:booking-comment-change booking (-> % .-target .-value)]) }]]
-		  [ui/TableRowColumn [ui/TextField {:value (get booking :amount) 
-                                        :onChange #(rf/dispatch [:booking-amount-change booking (-> % .-target .-value)]) }]]
+		  [ui/TableRowColumn {:key "amount"} [ui/TextField {:value (get booking :amount) 
+                                           :onChange #(rf/dispatch [:booking-amount-change booking (-> % .-target .-value)]) }]]
 	  ])
 
 
 (defn booking-table
   []
   (let [bookings @(rf/subscribe [:bookings])]
-	  [ui/Paper
+	  [ui/Paper {:key "booking-table" :class "booking-table"}
 	  [ui/Table
 	   [ui/TableHeader {:displaySelectAll false}
-		      [ui/TableHeaderColumn "Date"]
-		      [ui/TableHeaderColumn "Category"]
-		      [ui/TableHeaderColumn "Comment"]
-		      [ui/TableHeaderColumn "Amount"]
+		      [ui/TableHeaderColumn {:key "date"} "Date"]
+		      [ui/TableHeaderColumn {:key "cat"} "Category"]
+		      [ui/TableHeaderColumn {:key "com"} "Comment"]
+		      [ui/TableHeaderColumn {:key "amount"} "Amount"]
 	    ]
 	    [ui/TableBody
         (for [booking bookings]
@@ -205,26 +208,23 @@
         
 (defn category-table
   []
-  [:div.category-table "Categories"
-  [ui/Paper
+  [ui/Paper {:key "cat-table" :class "category-table"}
   [ui/Table
-   [ui/TableHeader
-	      [ui/TableHeaderColumn "Category"]
-	      [ui/TableHeaderColumn "Total"]
+   [ui/TableHeader {:displaySelectAll false}
+	      [ui/TableHeaderColumn {:key "cat"} "Category"]
+	      [ui/TableHeaderColumn {:key "tot"} "Total"]
     ]
     [ui/TableBody
      [ui/TableRow
-	     [ui/TableRowColumn "Food"]
-	     [ui/TableRowColumn "10"]
+	     [ui/TableRowColumn {:key 1} "Food"]
+	     [ui/TableRowColumn {:key 2}"10"]
      ]
      [ui/TableRow
-	     [ui/TableRowColumn "Rent"]
-	     [ui/TableRowColumn "20"]
+	     [ui/TableRowColumn {:key 1} "Rent"]
+	     [ui/TableRowColumn {:key 2}]
      ]
      ]
-   ]
-   ]
-  ])
+   ]])
 
 (defn navigation-panel
   []
@@ -241,11 +241,10 @@
    []
    [:div.booking-page
    [navigation-panel]
-   [booking-table]
-
-
-   [category-table]
-   ])
+   [:div.booking-page-tables
+	   [booking-table]
+	   [category-table]
+   ]])
 
 (defn drawer
   []
