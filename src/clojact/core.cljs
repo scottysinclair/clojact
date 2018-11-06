@@ -34,6 +34,18 @@
 ;; created in the face of figwheel hot-reloading of this file.
 (defonce do-timer (js/setInterval dispatch-timer-event 1000))
 
+
+;;
+;;;helper methods to update the app-state
+;;
+;updates a property of a booking
+(defn updateBooking
+  [db booking prop-key prop-value]
+  (let [index (.indexOf (get db :bookings) booking)]
+     (assoc-in db  [:bookings index prop-key] prop-value)))
+
+
+
 ;; -- Domino 2 - Event Handlers -----------------------------------------------
 (rf/reg-event-db              ;; sets up initial application state
   :initialize                 ;; usage:  (dispatch [:initialize])
@@ -72,14 +84,6 @@
    (fn [db _]
      (assoc db :drawer-open (not (get db :drawer-open)))
    ))
-
-
-;updates a property of a booking
-(defn updateBooking
-  [db booking prop-key prop-value]
-  (let [index (.indexOf (get db :bookings) booking)]
-     (assoc-in db  [:bookings index prop-key] prop-value)))
-
 
 (rf/reg-event-db
     :booking-comment-change
@@ -144,7 +148,6 @@
    {:style {:color @(rf/subscribe [:time-color])}}
    (-> @(rf/subscribe [:time])
        .toTimeString
-       (str/split " ")
        first)])
 
 (defn color-input
@@ -210,7 +213,7 @@
   []
   [ui/Paper {:key "cat-table" :class "category-table"}
   [ui/Table
-   [ui/TableHeader {:displaySelectAll false}
+   [ui/TableHeader {:displaySelectAll false }
 	      [ui/TableHeaderColumn {:key "cat"} "Category"]
 	      [ui/TableHeaderColumn {:key "tot"} "Total"]
     ]
@@ -221,7 +224,7 @@
      ]
      [ui/TableRow
 	     [ui/TableRowColumn {:key 1} "Rent"]
-	     [ui/TableRowColumn {:key 2}]
+	     [ui/TableRowColumn {:key 2}"200"]
      ]
      ]
    ]])
