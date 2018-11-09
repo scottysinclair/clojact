@@ -2,7 +2,7 @@
   (:require
    [goog.dom :as gdom]
    [clojact.material :as ui]
-   [material-ui-icons]
+   [clojact.material-icons :as icons]
    [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
    [clojure.string :as str]
@@ -160,120 +160,18 @@
             :on-change #(rf/dispatch [:time-color-change (-> % .-target .-value)])}]])  ;; <---
 
 
-(defn category-select-field
-  [booking]
-  (let [cat-list @(rf/subscribe [:all-categories])
-        category (get booking :category)]
-;	  [ui/SelectField {
-;                    :value (:id category) 
-;                    :onChange #(rf/dispatch [:booking-category-change booking (get cat-list %2)])
-;                    :renderValue #([:input {:value %}])
-;                    }
- ;   (for [cat  cat-list]
-;	   [ui/MenuItem {
-;                  :key (:id cat) 
-;                  :id (:id cat)
-;                  }(:name cat)]
- ;   )
-;	  ]
-))
-
-
-(defn booking-table-row
-   [booking]
-;;   (println booking)
-   [ui/table-row {:key (:id booking)}
-		  [ui/table-row-column {:key "date"} [ui/text-field {:value (get booking :date) 
-                                                       :onChange #(rf/dispatch [:booking-date-change booking (-> % .-target .-value)]) }]]
-		  [ui/table-row-column {:key "cat"} [category-select-field booking]]
-		  [ui/table-row-column {:key "com"} [ui/text-field {:value (get booking :comment)
-                                        :onChange #(rf/dispatch [:booking-comment-change booking (-> % .-target .-value)]) }]]
-		  [ui/table-row-column {:key "amount"} [ui/text-field {:value (get booking :amount) 
-                                           :onChange #(rf/dispatch [:booking-amount-change booking (-> % .-target .-value)]) }]]
-	  ])
-
-
-(defn booking-table
-  []
-  (let [bookings @(rf/subscribe [:bookings])]
-	  [ui/paper {:key "booking-table" :class "booking-table"}
-	  [ui/table
-	   [ui/table-header {:displaySelectAll false}
-		      [ui/table-header-column {:key "date"} "Date"]
-		      [ui/table-header-column {:key "cat"} "Category"]
-		      [ui/table-header-column {:key "com"} "Comment"]
-		      [ui/table-header-column {:key "amount"} "Amount"]
-	    ]
-	    [ui/table-body
-        (for [booking bookings]
-            [booking-table-row booking]
-	     )]
-  ]]))
-        
-(defn category-table
-  []
-  [ui/paper {:key "cat-table" :class "category-table"}
-  [ui/table
-   [ui/table-header {:displaySelectAll false }
-	      [ui/table-header-column {:key "cat"} "Category"]
-	      [ui/table-header-column {:key "tot"} "Total"]
-    ]
-    [ui/table-body
-     [ui/table-row
-	     [ui/table-row-column {:key 1} "Food"]
-	     [ui/table-row-column {:key 2}"10"]
-     ]
-     [ui/table-row
-	     [ui/table-row-column {:key 1} "Rent"]
-	     [ui/table-row-column {:key 2}"200"]
-     ]
-     ]
-   ]])
-
-(defn navigation-panel
-  []
-  [:div.navigation-panel
-   "January 2018"
-   [ui/text-field {
-                   :id "date" 
-                   :label "Month" 
-                   :type "date" 
-                   :defaultValue "2018-01-01"}]
-   ])
-
-(defn booking-page
-   []
-   [:div.booking-page
-   [navigation-panel]
-   [:div.booking-page-tables
-	   [booking-table]
-	   [category-table]
-   ]])
-
-(defn drawer
-  []
-  [ui/drawer {:open @(rf/subscribe [:drawer-open]) :docked true}
-    [ui/list-box
-      [ui/list-item {:leftIcon (el [:i.material-icons "Options"])
-                     :on-click #(rf/dispatch [:toggle-app-drawer])
-      }]
-       [ui/divider]
-       [ui/list-item {:on-click #(rf/dispatch [:toggle-app-drawer])} "Overview" ]
-       [ui/list-item "Booking"]
-       [ui/list-item "Reports"]
-       [ui/list-item "Settings"]
-    ]
-   ])
-
-
 (defn ui
   []
   ;;[ui/mui-theme-provider  {:mui-theme (ui/get-mui-theme)}
    [:div
-     [ui/app-bar {:title "Accounting" :onLeftIconButtonTouchTap #(rf/dispatch [:toggle-app-drawer])  } ]
-     [drawer]
-     [booking-page]
-   ;;  ]
+     [ui/app-bar {:title "Accounting" :onLeftIconButtonTouchTap #(rf/dispatch [:toggle-app-drawer])  } 
+              [ui/toolbar
+                 [ui/icon-button  [icons/menu-icon {:aria-label "Menu"}]] ;;
+                 [ui/typography {:variant "h6" :color "inherit"} "Photos"]
+               ]
+    ;; [drawer]
+   ;;  [booking-page]
+     ]
    ])
 
 

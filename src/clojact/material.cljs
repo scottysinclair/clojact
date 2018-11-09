@@ -1,5 +1,6 @@
 (ns  ^:figwheel-hooks clojact.material
   (:require [material-ui]
+            [reagent.core :as r]
             [camel-snake-kebab.core :as csk]
             [camel-snake-kebab.extras :as csx]
             [material-ui-icons]))
@@ -21,13 +22,13 @@
        (name shade)))
 
 ;; components
-(def button (aget js/MaterialUI "Button"))
-(def app-bar (aget js/MaterialUI "AppBar"))
-(def tool-bar (aget js/MaterialUI "Toolbar"))
+(def button (r/adapt-react-class (aget js/MaterialUI "Button")))
+(def app-bar (r/adapt-react-class (aget js/MaterialUI "AppBar")))
+(def toolbar (r/adapt-react-class (aget js/MaterialUI "Toolbar")))
 (def paper (aget js/MaterialUI "Paper"))
 (def grid (aget js/MaterialUI "Grid"))
-(def icon-button (aget js/MaterialUI "IconButton"))
-(def typography (aget js/MaterialUI "Typography"))
+(def icon-button (r/adapt-react-class (aget js/MaterialUI "IconButton")))
+(def typography (r/adapt-react-class (aget js/MaterialUI "Typography")))
 (def snack-bar (aget js/MaterialUI "Snackbar"))
 (def drawer (aget js/MaterialUI "Drawer"))
 (def list-box(aget js/MaterialUI "List"))
@@ -44,14 +45,3 @@
 (def table-row-column (aget js/MaterialUI "TableRowColumn"))
 (def text-field (aget js/MaterialUI "TextField"))
 (def paper (aget js/MaterialUI "Paper"))
-
-
-
-;; icons
-(def menu-icon (aget js/MaterialUIIcons "Menu"))
-(def inbox-icon (aget js/MaterialUIIcons "Inbox"))
-(def person-icon(aget js/MaterialUIIcons "Person"))
-(def comunity-icon(aget js/MaterialUIIcons "People"))
-(def assessment-icon(aget js/MaterialUIIcons "Assessment"))
-(def statistics-icon(aget js/MaterialUIIcons "Description"))
-(def help-icon(aget js/MaterialUIIcons "Help"))
