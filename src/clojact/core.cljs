@@ -1,27 +1,26 @@
 (ns ^:figwheel-hooks clojact.core
   (:require
    [goog.dom :as gdom]
-   [clojact.material :as ui]
-   [clojact.material-icons :as icons]
+   [clojact.material-core :as ui]
    [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
    [clojure.string :as str]
    ))
 
-
+;(println "IC" icons)
+;(println icons)
 
 ;;material ui
 (def el reagent/as-element)
 ;;(defn icon [nme] [ui/FontIcon {:className "material-icons"} nme])
-;;(defn color [nme] (aget ui/colors nme))
+(defn color [nme] (aget ui/colors nme))
 
 ;; create a new theme based on the dark theme from Material UI
-;;(defonce theme-defaults {:muiTheme (ui/createMuiTheme
-;;                                    (-> ui/darkBaseTheme
- ;;                                       (js->clj :keywordize-keys true)
-  ;;                                      (update :palette merge {:primary1Color (color "amber500")
-   ;;                                                             :primary2Color (color "amber700")})
-    ;;                                    clj->js))})
+(defonce theme-defaults {:theme (ui/createMuiTheme
+                                (-> ui/lightBaseTheme
+                                   (js->clj :keywordize-keys true)
+                                   (update :palette merge {:primary1Color (color "red")
+                                                          :primary2Color (color "green")})                                      clj->js))})
 
 
 ;; -- Domino 1 - Event Dispatch -----------------------------------------------
@@ -45,6 +44,12 @@
   (let [index (.indexOf (get db :bookings) booking)]
      (assoc-in db  [:bookings index prop-key] prop-value)))
 
+(defn pap [x] (println x) x) 
+
+(defn category-by-id
+  [db id]
+  (some #(when (= id (:id %)) %) 
+        (get db :all-categories)))
 
 
 ;; -- Domino 2 - Event Handlers -----------------------------------------------
@@ -58,12 +63,12 @@
      :bookings (vector 
       {:id 1
        :date "01.01.2001"
-       :category "Food"
+       :category {:id 1 :name "Food"}
        :comment "...."
        :amount "82.21"}
       {:id 2
        :date "02.01.2001"
-       :category "Rent"
+       :category {:id 2 :name "Ren3"}
        :comment "...."
        :amount "820"
       })}))
@@ -112,7 +117,8 @@
    (fn [db event]
      (let [booking (get event 1)
            new-value (get event 2)]
-        (updateBooking db booking :category new-value))))
+       (println "::::::::" booking "jjjjj" new-value)
+        (updateBooking db booking :category (category-by-id db new-value)))))
 
 
 ;; -- Domino 4 - Query  -------------------------------------------------------
@@ -159,20 +165,110 @@
             :value @(rf/subscribe [:time-color])
             :on-change #(rf/dispatch [:time-color-change (-> % .-target .-value)])}]])  ;; <---
 
+(defn category-select-field
+  [booking]
+  (let [cat-list @(rf/subscribe [:all-categories])
+        category (get booking :category)]
+	  [ui/select { :value (:id category) 
+                 :onChange #(rf/dispatch [:booking-category-change booking (-> % .-target .-value)])  }
+    (for [cat  cat-list]
+	   [ui/menu-item {
+                   :key (:id cat) 
+                   :value (:id cat)
+                   }(:name cat)])]))
+
+
+(defn booking-table-row
+   [booking]
+;;   (println booking)
+   [ui/table-row {:key (:id booking)}
+		  [ui/table-cell {:key "date"} [ui/text-field {:value (get booking :date) 
+                                                 :onChange #(rf/dispatch [:booking-date-change booking (-> % .-target .-value)]) }]]
+		  [ui/table-cell {:key "cat"} [category-select-field booking]]
+		  [ui/table-cell {:key "com"} [ui/text-field {:value (get booking :comment)
+                                  :onChange #(rf/dispatch [:booking-comment-change booking (-> % .-target .-value)]) }]]
+		  [ui/table-cell {:key "amount"} [ui/text-field {:value (get booking :amount) 
+                                     :onChange #(rf/dispatch [:booking-amount-change booking (-> % .-target .-value)]) }]]
+	  ])
+
+
+(defn booking-table
+  []
+  (let [bookings @(rf/subscribe [:bookings])]
+	  [ui/paper {:key "booking-table" :class "booking-table"}
+	  [ui/table
+	   [ui/table-head
+		      [ui/table-cell {:key "date"} "Date"]
+		      [ui/table-cell {:key "cat"} "Category"]
+		      [ui/table-cell {:key "com"} "Comment"]
+		      [ui/table-cell {:key "amount"} "Amount"]
+	    ]
+	    [ui/table-body
+        (for [booking bookings]
+            [booking-table-row booking]
+	     )]
+  ]]))
+        
+(defn category-table
+  []
+  [ui/paper {:key "cat-table" :class "category-table"}
+  [ui/table
+   [ui/table-head 
+	      [ui/table-cell {:key "cat"} "Category"]
+	      [ui/table-cell {:key "tot"} "Total"]
+    ]
+    [ui/table-body
+     [ui/table-row
+	     [ui/table-cell {:key 1} "Food"]
+	     [ui/table-cell {:key 2}"10"]
+     ]
+     [ui/table-row
+	     [ui/table-cell {:key 1} "Rent"]
+	     [ui/table-cell {:key 2}"200"]
+     ]
+     ]
+   ]])
+
+(defn booking-page
+   []
+   [:div.booking-page
+  ;; [navigation-panel]
+   [:div.booking-page-tables
+	   [booking-table]
+	   [category-table]
+   ]])
+
+
+(defn drawer
+  []
+  [ui/drawer {:open @(rf/subscribe [:drawer-open]) :docked true}
+    [ui/list-box
+      [ui/list-item {:leftIcon (el [:i.material-icons "Options"])
+                     :on-click #(rf/dispatch [:toggle-app-drawer])
+      }]
+       [ui/divider]
+       [ui/list-item {:on-click #(rf/dispatch [:toggle-app-drawer])} "Overview" ]
+       [ui/list-item "Booking"]
+       [ui/list-item "Reports"]
+       [ui/list-item "Settings"]
+    ]
+   ])
+
+
 
 (defn ui
   []
-  ;;[ui/mui-theme-provider  {:mui-theme (ui/get-mui-theme)}
-   [:div
-     [ui/app-bar {:title "Accounting" :onLeftIconButtonTouchTap #(rf/dispatch [:toggle-app-drawer])  } 
-              [ui/toolbar
-                 [ui/icon-button  [icons/menu-icon {:aria-label "Menu"}]] ;;
-                 [ui/typography {:variant "h6" :color "inherit"} "Photos"]
-               ]
-    ;; [drawer]
-   ;;  [booking-page]
-     ]
-   ])
+  [ui/mui-theme-provider theme-defaults
+  [:div
+    [ui/app-bar {:position "static"}
+             [ui/toolbar
+                 [ui/icon-button {:on-click #(rf/dispatch [:toggle-app-drawer])  }  
+                  [ui/ic-menu {:aria-label "Menu"}]] ;;
+                 [ui/typography {:variant "h6" :color "inherit"} "Accounting"]
+               ]]
+     [drawer]
+     [booking-page]
+   ]])
 
 
 (println "This text is printed from src/clojact/core.cljs. Go ahead and edit it and see reloading in action.")

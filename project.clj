@@ -10,7 +10,7 @@
                  [org.clojure/clojurescript "1.10.339"]
                  [reagent "0.8.1"] 
                  [cljsjs/material-ui "3.2.0-0" :exclusions [cljsjs/react cljsjs/react-dom]]
-                 [cljsjs/material-ui-icons "3.0.1-0"]
+                 [cljsjs/material-ui-icons "3.0.1-0" :exclusions [cljsjs/react cljsjs/react-dom]
                  [camel-snake-kebab "0.4.0"]
                  [re-frame "0.10.6" :exclusions [reagent]]]
 
