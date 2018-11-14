@@ -9,6 +9,7 @@
 
 ;(println icons)
 
+(def grid (r/adapt-react-class (aget js/MaterialUI "Grid")))
 (def app-bar (r/adapt-react-class (aget js/MaterialUI "AppBar")))
 (def toolbar (r/adapt-react-class (aget js/MaterialUI "Toolbar")))
 (def typography (r/adapt-react-class (aget js/MaterialUI "Typography")))

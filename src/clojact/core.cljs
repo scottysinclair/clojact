@@ -177,6 +177,7 @@
   [ui/table
    [ui/table-head 
    [ui/table-row {:key (get :id cat)}
+	     [ui/table-cell {:key "sel"}"Selected"]
 	     [ui/table-cell {:key "cat"} "Category"]
 	     [ui/table-cell {:key "tot"} "Total"]
    ]]
@@ -188,12 +189,12 @@
 
 (defn booking-page
    []
-   [:div.booking-page
-  ;; [navigation-panel]
-   [:div.booking-page-tables
-	   [booking-table]
-	   [category-table]
-   ]])
+   [ui/grid {:container true :spacing 0}
+    [ui/grid {:item true :xs "auto"}
+	   [booking-table]]
+    [ui/grid {:item true :xs 3}
+	   [category-table]]
+   ])
 
 
 (defn drawer
