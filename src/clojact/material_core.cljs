@@ -26,6 +26,7 @@
 (def text-field (r/adapt-react-class (aget js/MaterialUI "TextField")))
 (def select (r/adapt-react-class (aget js/MaterialUI "Select")))
 (def menu-item (r/adapt-react-class (aget js/MaterialUI "MenuItem")))
+(def checkbox (r/adapt-react-class (aget js/MaterialUI "Checkbox")))
 
 
 (def ic-menu (r/adapt-react-class (aget js/MaterialUIIcons "Menu")))

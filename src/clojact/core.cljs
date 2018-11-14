@@ -44,7 +44,7 @@
     {:time (js/Date.)         ;; What it returns becomes the new application state
      :time-color "#f88"
      :drawer-open false
-     :selected-category {:id 2 :name "Rent"}
+     :selected-category nil
      :all-categories (vector {:id 1 :name "Food"} {:id 2 :name "Rent"} {:id 3 :name "Lunch"})
      :bookings (vector 
       {:id 1
@@ -74,6 +74,14 @@
            event-value (get event 3) ; the value from the ui compponent
            lookup-funct (or (get event 4) (fn [db value] value))] ;optional lookup conversion.
         (updateBooking db booking field (lookup-funct db event-value)))))
+
+
+(rf/reg-event-db
+  :category-selected
+  (fn [db event]
+    (let [cat (get event 1)]
+    (println "row selected " event)
+    (assoc db :selected-category cat))))
 
 ;; -- Domino 4 - Query  -------------------------------------------------------
 (rf/reg-sub
@@ -144,6 +152,7 @@
 (defn category-table
   []
   (let [categories @(rf/subscribe [:all-categories])
+        selected-category @(rf/subscribe [:selected-category])
         bookings @(rf/subscribe [:bookings])]
   [ui/paper {:key "cat-table" :class "category-table"}
   [ui/table
@@ -154,11 +163,17 @@
    ]]
     [ui/table-body
         (for [cat categories]
-			     [ui/table-row {:key (:id cat)}
-				     [ui/table-cell {:key "cat"} (:name cat)]
-				     [ui/table-cell {:key "tot"} (reduce + (map (fn[v] (js/parseFloat (:amount v))) bookings))]
-			     ]
-	     )]
+           (let [is-selected (= (:id cat) (:id selected-category)) ] 
+			     [ui/table-row {
+                       :key (:id cat) 
+                       :on-click #(rf/dispatch [:category-selected cat])
+                       :className (when is-selected "highlighted-row")}
+               [ui/table-cell {:key "chk"}
+                [ui/checkbox {:checked is-selected } ]]
+				       [ui/table-cell {:key "cat"} (:name cat)]
+				       [ui/table-cell {:key "tot"} (reduce + (map (fn[v] (js/parseFloat (:amount v))) bookings))]
+			     ]))
+	     ]
      ]]))
 
 (defn booking-page
