@@ -51,12 +51,12 @@
        :date "01.01.2001"
        :category {:id 1 :name "Food"}
        :comment "...."
-       :amount "82.21"}
+       :amount 82.21}
       {:id 2
        :date "02.01.2001"
        :category {:id 2 :name "Ren3"}
        :comment "...."
-       :amount "820"
+       :amount 820
       })}))
 
           ;; so the application state will initially be a map with two keys
@@ -143,24 +143,23 @@
         
 (defn category-table
   []
+  (let [categories @(rf/subscribe [:all-categories])
+        bookings @(rf/subscribe [:bookings])]
   [ui/paper {:key "cat-table" :class "category-table"}
   [ui/table
    [ui/table-head 
-   [ui/table-row
+   [ui/table-row {:key (get :id cat)}
 	     [ui/table-cell {:key "cat"} "Category"]
 	     [ui/table-cell {:key "tot"} "Total"]
    ]]
     [ui/table-body
-     [ui/table-row
-	     [ui/table-cell {:key 1} "Food"]
-	     [ui/table-cell {:key 2}"10"]
-     ]
-     [ui/table-row
-	     [ui/table-cell {:key 1} "Rent"]
-	     [ui/table-cell {:key 2}"200"]
-     ]
-     ]
-   ]])
+        (for [cat categories]
+			     [ui/table-row {:key (:id cat)}
+				     [ui/table-cell {:key "cat"} (:name cat)]
+				     [ui/table-cell {:key "tot"} (reduce + (map (fn[v] (js/parseFloat (:amount v))) bookings))]
+			     ]
+	     )]
+     ]]))
 
 (defn booking-page
    []
