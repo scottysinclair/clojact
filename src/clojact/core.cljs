@@ -23,6 +23,10 @@
                                                           :primary2Color (color "green")})                                      clj->js))})
 
 
+;true if the both maps have the same value for the given label
+(defn matches [label mapA mapB]
+  (= (label mapA) (label mapB)))
+
 ;updates a property of a booking
 (defn updateBooking
   [db booking prop-key prop-value]
@@ -35,6 +39,7 @@
   [db id]
   (some #(when (= id (:id %)) %) 
         (get db :all-categories)))
+
 
 
 ;; -- Domino 2 - Event Handlers -----------------------------------------------
@@ -106,8 +111,6 @@
 
 ;; -- Domino 5 - View Functions ----------------------------------------------
 
-
-
 (defn category-select-field
   [booking]
   (let [cat-list @(rf/subscribe [:all-categories])
@@ -119,21 +122,22 @@
 
 
 (defn booking-table-row
-   [booking]
-;;   (println booking)
-   [ui/table-row {:key (:id booking) :className "highlighted-row"}
-		  [ui/table-cell {:key "date"} [ui/text-field {:value (get booking :date) 
-                                                 :onChange #(rf/dispatch [:booking-change booking :date (-> % .-target .-value)]) }]]
-		  [ui/table-cell {:key "cat"} [category-select-field booking]]
-		  [ui/table-cell {:key "com"} [ui/text-field {:value (get booking :comment)
-                                  :onChange #(rf/dispatch [:booking-change booking :comment (-> % .-target .-value)]) }]]
-		  [ui/table-cell {:key "amount"} [ui/text-field {:value (get booking :amount) 
-                                     :onChange #(rf/dispatch [:booking-change booking :amount  (-> % .-target .-value)]) }]]
-	  ])
+   [booking selected-category]
+   (let [is-selected (matches :id (:category booking)  selected-category) ] 
+     [ui/table-row {:key (:id booking) :className (when is-selected "highlighted-row")}
+		    [ui/table-cell {:key "date"} [ui/text-field {:value (get booking :date) 
+                                                   :onChange #(rf/dispatch [:booking-change booking :date (-> % .-target .-value)]) }]]
+		    [ui/table-cell {:key "cat"} [category-select-field booking]]
+		    [ui/table-cell {:key "com"} [ui/text-field {:value (get booking :comment)
+                                    :onChange #(rf/dispatch [:booking-change booking :comment (-> % .-target .-value)]) }]]
+		    [ui/table-cell {:key "amount"} [ui/text-field {:value (get booking :amount) 
+                                       :onChange #(rf/dispatch [:booking-change booking :amount  (-> % .-target .-value)]) }]]
+	    ]))
 
 (defn booking-table
   []
-  (let [bookings @(rf/subscribe [:bookings])]
+  (let [bookings @(rf/subscribe [:bookings])
+        selected-category @(rf/subscribe [:selected-category])]
 	  [ui/paper {:key "booking-table"}
 	  [ui/table
 	   [ui/table-head
@@ -145,10 +149,25 @@
 	    ]]
 	    [ui/table-body
         (for [booking bookings]
-            [booking-table-row booking]
+            [booking-table-row booking selected-category]
 	     )]
   ]]))
-        
+
+
+(defn category-table-row 
+  [cat selected-category bookings]
+ (let [is-selected (matches :id cat selected-category) ] 
+  [ui/table-row {
+              :key (:id cat) 
+              :on-click #(rf/dispatch [:category-selected cat])
+              :className (when is-selected "highlighted-row")}
+      [ui/table-cell {:key "chk"}
+       [ui/checkbox {:checked is-selected } ]]
+      [ui/table-cell {:key "cat"} (:name cat)]
+      [ui/table-cell {:key "tot"} (reduce + (map (fn[v] (js/parseFloat (:amount v))) bookings))]
+  ]))
+
+
 (defn category-table
   []
   (let [categories @(rf/subscribe [:all-categories])
@@ -162,17 +181,8 @@
 	     [ui/table-cell {:key "tot"} "Total"]
    ]]
     [ui/table-body
-        (for [cat categories]
-           (let [is-selected (= (:id cat) (:id selected-category)) ] 
-			     [ui/table-row {
-                       :key (:id cat) 
-                       :on-click #(rf/dispatch [:category-selected cat])
-                       :className (when is-selected "highlighted-row")}
-               [ui/table-cell {:key "chk"}
-                [ui/checkbox {:checked is-selected } ]]
-				       [ui/table-cell {:key "cat"} (:name cat)]
-				       [ui/table-cell {:key "tot"} (reduce + (map (fn[v] (js/parseFloat (:amount v))) bookings))]
-			     ]))
+        (for [cat categories] 
+          (category-table-row cat selected-category bookings ))
 	     ]
      ]]))
 
