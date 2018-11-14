@@ -88,6 +88,26 @@
     (println "row selected " event)
     (assoc db :selected-category cat))))
 
+(defn prev-pr-next-cat [categories inc-or-dec cat]
+  (get categories(inc-or-dec (.indexOf categories cat))))
+
+(rf/reg-event-db
+  :doc-key-press
+  (fn [db event]
+    (let [element-id (get event 1)
+          key-code (get event 2)]
+    (println "KEY PRESS" event element-id key-code) 
+    (cond (= key-code 40)
+	    (cond (= (subs element-id 0 7) "catrow-") 
+		          (let [category-id (subs element-id 7)
+                    cat (get-category-by-id db (int category-id))
+                    next-cat (prev-pr-next-cat (:all-categories db) inc cat)] ;		                
+	             (println "CHANGE SELCAT " cat next-cat) 
+               (.focus (js/document.getElementById (str "catrow-" (:id next-cat)))) ;hack switch focus to next rows checkbox
+		            (assoc db :selected-category next-cat))
+	          :else db)
+     :else db))))
+
 ;; -- Domino 4 - Query  -------------------------------------------------------
 (rf/reg-sub
   :drawer-open
@@ -159,10 +179,13 @@
  (let [is-selected (matches :id cat selected-category) ] 
   [ui/table-row {
               :key (:id cat) 
-              :on-click #(rf/dispatch [:category-selected cat])
+              :on-click (fn [event] (rf/dispatch [:category-selected cat]) ;dispatch state event
+                          (.focus (js/document.getElementById (str "catrow-" (:id cat))))) ;pure dom side effect, set focus to the row's checkbox
+                                              ;so that key events can be used
               :className (when is-selected "highlighted-row")}
       [ui/table-cell {:key "chk"}
-       [ui/checkbox {:checked is-selected } ]]
+       [ui/checkbox {:checked is-selected 
+                     :id (str "catrow-" (:id cat))}]]
       [ui/table-cell {:key "cat"} (:name cat)]
       [ui/table-cell {:key "tot"} (reduce + (map (fn[v] (js/parseFloat (:amount v))) bookings))]
   ]))
@@ -176,7 +199,7 @@
   [ui/paper {:key "cat-table" :class "category-table"}
   [ui/table
    [ui/table-head 
-   [ui/table-row {:key (get :id cat)}
+   [ui/table-row {:key (get :id cat) }
 	     [ui/table-cell {:key "sel"}"Selected"]
 	     [ui/table-cell {:key "cat"} "Category"]
 	     [ui/table-cell {:key "tot"} "Total"]
@@ -216,8 +239,8 @@
 
 (defn ui
   []
-  [ui/mui-theme-provider theme-defaults
-  [:div
+  [ui/mui-theme-provider theme-defaults 
+  [:div  {:onKeyDown #(rf/dispatch [:doc-key-press (-> % .-target.id) (-> % .-keyCode)])}
     [ui/app-bar {:position "static"}
              [ui/toolbar
                  [ui/icon-button {:on-click #(rf/dispatch [:toggle-app-drawer])  }  
