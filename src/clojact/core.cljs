@@ -88,8 +88,24 @@
     (println "row selected " event)
     (assoc db :selected-category cat))))
 
-(defn prev-pr-next-cat [categories inc-or-dec cat]
+(defn get-prev-or-next-cat [categories inc-or-dec cat]
   (get categories(inc-or-dec (.indexOf categories cat))))
+
+(rf/reg-event-db
+  :set-focus
+  (fn [db event]
+    (let [dom-element (get event 1)]
+      (.focus dom-element))
+    db))
+
+(defn select-prev-or-next-cat
+  [db element-id inc-or-dec]
+		          (let [category-id (subs element-id 7)
+                    cat (get-category-by-id db (int category-id))
+                    next-cat (get-prev-or-next-cat (:all-categories db) inc-or-dec cat)] ;		                
+	             (println "CHANGE SELCAT " cat next-cat) 
+               (rf/dispatch [:set-focus (js/document.getElementById (str "catrow-" (:id next-cat)))]) ;hack switch focus to next rows checkbox
+		            (assoc db :selected-category next-cat)))
 
 (rf/reg-event-db
   :doc-key-press
@@ -99,14 +115,14 @@
     (println "KEY PRESS" event element-id key-code) 
     (cond (= key-code 40)
 	    (cond (= (subs element-id 0 7) "catrow-") 
-		          (let [category-id (subs element-id 7)
-                    cat (get-category-by-id db (int category-id))
-                    next-cat (prev-pr-next-cat (:all-categories db) inc cat)] ;		                
-	             (println "CHANGE SELCAT " cat next-cat) 
-               (.focus (js/document.getElementById (str "catrow-" (:id next-cat)))) ;hack switch focus to next rows checkbox
-		            (assoc db :selected-category next-cat))
+           (select-prev-or-next-cat db element-id inc)
 	          :else db)
-     :else db))))
+     :else 
+     (cond (= key-code 38)
+	     (cond (= (subs element-id 0 7) "catrow-") 
+            (select-prev-or-next-cat db element-id dec)
+	           :else db)
+      :else db)))))
 
 ;; -- Domino 4 - Query  -------------------------------------------------------
 (rf/reg-sub
