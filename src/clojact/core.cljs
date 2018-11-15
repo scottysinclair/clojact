@@ -50,7 +50,16 @@
      :time-color "#f88"
      :drawer-open false
      :selected-category nil
-     :all-categories (vector {:id 1 :name "Food"} {:id 2 :name "Rent"} {:id 3 :name "Lunch"})
+     :all-categories (vector 
+                       {:id 1 :name "Food"} 
+                       {:id 2 :name "Rent"} 
+                       {:id 3 :name "Lunch"}
+                       {:id 4 :name "Travel"}
+                       {:id 5 :name "Car"}
+                       {:id 6 :name "School"}
+                       {:id 7 :name "Birthdays"}
+                       {:id 8 :name "Christmas"}
+                       {:id 9 :name "Camping"})
      :bookings (vector 
       {:id 1
        :date "01.01.2001"
@@ -59,10 +68,55 @@
        :amount 82.21}
       {:id 2
        :date "02.01.2001"
-       :category {:id 2 :name "Ren3"}
+       :category {:id 2 :name "Rent"}
        :comment "...."
        :amount 820
-      })}))
+      }
+      {:id 3
+       :date "03.01.2001"
+       :category {:id 1 :name "Food"}
+       :comment "...."
+       :amount 82.21}
+      {:id 4
+       :date "04.01.2001"
+       :category {:id 2 :name "Rent"}
+       :comment "...."
+       :amount 820
+      }
+      {:id 5
+       :date "05.01.2001"
+       :category {:id 1 :name "Food"}
+       :comment "...."
+       :amount 82.21}
+      {:id 6
+       :date "06.01.2001"
+       :category {:id 2 :name "Rent"}
+       :comment "...."
+       :amount 820
+      }
+      {:id 7
+       :date "07.01.2001"
+       :category {:id 1 :name "Food"}
+       :comment "...."
+       :amount 82.21}
+      {:id 8
+       :date "08.01.2001"
+       :category {:id 2 :name "Rent"}
+       :comment "...."
+       :amount 820
+      }
+      {:id 9
+       :date "09.01.2001"
+       :category {:id 1 :name "Food"}
+       :comment "...."
+       :amount 82.21}
+      {:id 10
+       :date "10.01.2001"
+       :category {:id 2 :name "Rent"}
+       :comment "...."
+       :amount 820
+      }
+      )}))
 
           ;; so the application state will initially be a map with two keys
 (rf/reg-event-db                ;;the drawer open state is switched.
