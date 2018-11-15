@@ -116,6 +116,39 @@
        :comment "...."
        :amount 820
       }
+      {:id 11
+       :date "11.01.2001"
+       :category {:id 1 :name "Food"}
+       :comment "...."
+       :amount 82.21}
+      {:id 12
+       :date "12.01.2001"
+       :category {:id 2 :name "Rent"}
+       :comment "...."
+       :amount 820
+      }
+      {:id 13
+       :date "13.01.2001"
+       :category {:id 1 :name "Food"}
+       :comment "...."
+       :amount 82.21}
+      {:id 14
+       :date "14.01.2001"
+       :category {:id 2 :name "Rent"}
+       :comment "...."
+       :amount 820
+      }
+      {:id 15
+       :date "15.01.2001"
+       :category {:id 1 :name "Food"}
+       :comment "...."
+       :amount 82.21}
+      {:id 16
+       :date "16.01.2001"
+       :category {:id 2 :name "Rent"}
+       :comment "...."
+       :amount 820
+      }
       )}))
 
           ;; so the application state will initially be a map with two keys
@@ -149,17 +182,32 @@
   :set-focus
   (fn [db event]
     (let [dom-element (get event 1)]
-      (.focus dom-element))
-    db))
+      (.focus dom-element)
+    db)))
 
-(defn select-prev-or-next-cat
-  [db element-id inc-or-dec]
+
+
+
+
+(let [select-n-o-p-category 
+		  (fn [db element-id inc-or-dec];helper to select next or previous category
 		          (let [category-id (subs element-id 7)
-                    cat (get-category-by-id db (int category-id))
-                    next-cat (get-prev-or-next-cat (:all-categories db) inc-or-dec cat)] ;		                
-	             (println "CHANGE SELCAT " cat next-cat) 
-               (rf/dispatch [:set-focus (js/document.getElementById (str "catrow-" (:id next-cat)))]) ;hack switch focus to next rows checkbox
+		                cat (get-category-by-id db (int category-id))
+		                next-cat (get-prev-or-next-cat (:all-categories db) inc-or-dec cat)] ;		                
+		           (println "CHANGE SELCAT " cat next-cat) 
+		           (rf/dispatch [:set-focus (js/document.getElementById (str "catrow-" (:id next-cat)))]) ;hack switch focus to next rows checkbox
 		            (assoc db :selected-category next-cat)))
+    ]
+  
+(defn select-next-category
+  [db element-id]
+  (select-n-o-p-category db element-id inc))
+
+(defn select-prev-category
+  [db element-id]
+  (select-n-o-p-category db element-id dec))
+)
+
 
 (rf/reg-event-db
   :doc-key-press
@@ -169,12 +217,12 @@
     (println "KEY PRESS" event element-id key-code) 
     (cond (= key-code 40)
 	    (cond (= (subs element-id 0 7) "catrow-") 
-           (select-prev-or-next-cat db element-id inc)
+           (select-next-category db element-id)
 	          :else db)
      :else 
      (cond (= key-code 38)
 	     (cond (= (subs element-id 0 7) "catrow-") 
-            (select-prev-or-next-cat db element-id dec)
+            (select-prev-category db element-id)
 	           :else db)
       :else db)))))
 
@@ -243,6 +291,8 @@
 	     )]
   ]]))
 
+(defn has-category[booking cat]
+(matches :id cat (:category booking)))
 
 (defn category-table-row 
   [cat selected-category bookings]
@@ -257,7 +307,7 @@
        [ui/checkbox {:checked is-selected 
                      :id (str "catrow-" (:id cat))}]]
       [ui/table-cell {:key "cat"} (:name cat)]
-      [ui/table-cell {:key "tot"} (reduce + (map (fn[v] (js/parseFloat (:amount v))) bookings))]
+      [ui/table-cell {:key "tot"} (reduce + (map (fn[v] (js/parseFloat (:amount v))) (filter (fn[b] (has-category b cat)) bookings)) )]
   ]))
 
 
