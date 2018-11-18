@@ -5,6 +5,8 @@
    [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
    [clojure.string :as str]
+   [goog.string :as gstring]
+   [goog.string.format]
    ))
 
 ;(println "IC" icons)
@@ -40,6 +42,13 @@
   (some #(when (= id (:id %)) %) 
         (get db :all-categories)))
 
+(defn format-money [amount]
+   (let [amount-str (str amount)
+         len (count amount-str)]
+     (cond (or (= amount 0) (= amount ""))
+           amount-str
+        :else
+        (str (subs amount-str 0 (- len 2)) "," (subs amount-str (- len 2)))))) 
 
 
 ;; -- Domino 2 - Event Handlers -----------------------------------------------
@@ -65,89 +74,89 @@
        :date "01"
        :category {:id 1 :name "Food"}
        :comment "...."
-       :amount 82.21}
+       :amount 8221}
       {:id 2
        :date "02"
        :category {:id 2 :name "Rent"}
        :comment "...."
-       :amount 820
+       :amount 82000
       }
       {:id 3
        :date "03"
        :category {:id 1 :name "Food"}
        :comment "...."
-       :amount 82.21}
+       :amount 8221}
       {:id 4
        :date "04"
        :category {:id 2 :name "Rent"}
        :comment "...."
-       :amount 820
+       :amount 82000
       }
       {:id 5
        :date "05"
        :category {:id 1 :name "Food"}
        :comment "...."
-       :amount 82.21}
+       :amount 8221}
       {:id 6
        :date "06"
        :category {:id 2 :name "Rent"}
        :comment "...."
-       :amount 820
+       :amount 82000
       }
       {:id 7
        :date "07"
        :category {:id 1 :name "Food"}
        :comment "...."
-       :amount 82.21}
+       :amount 8221}
       {:id 8
        :date "08"
        :category {:id 2 :name "Rent"}
        :comment "...."
-       :amount 820
+       :amount 82000
       }
       {:id 9
        :date "09"
        :category {:id 1 :name "Food"}
        :comment "...."
-       :amount 82.21}
+       :amount 8221}
       {:id 10
        :date "10"
        :category {:id 2 :name "Rent"}
        :comment "...."
-       :amount 820
+       :amount 82000
       }
       {:id 11
        :date "11"
        :category {:id 1 :name "Food"}
        :comment "...."
-       :amount 82.21}
+       :amount 8221}
       {:id 12
        :date "12"
        :category {:id 2 :name "Rent"}
        :comment "...."
-       :amount 820
+       :amount 82000
       }
       {:id 13
        :date "13"
        :category {:id 1 :name "Food"}
        :comment "...."
-       :amount 82.21}
+       :amount 8221}
       {:id 14
        :date "14"
        :category {:id 2 :name "Rent"}
        :comment "...."
-       :amount 820
+       :amount 82000
       }
       {:id 15
        :date "15"
        :category {:id 1 :name "Food"}
        :comment "...."
-       :amount 82.21}
+       :amount 8221}
       {:id 16
        :date "16"
        :category {:id 2 :name "Rent"}
        :comment "...."
-       :amount 820
+       :amount 82000
       }
       )}))
 
@@ -297,6 +306,10 @@
 (defn bookings-with-category [cat bookings] 
   (filter (partial has-category cat) bookings))
 
+(defn total-amount-for-category [cat bookings]
+ (reduce + (map :amount (bookings-with-category cat bookings)) ))
+
+
 (defn category-table-row 
   [cat selected-category bookings]
  (let [is-selected (matches :id cat selected-category) ] 
@@ -309,7 +322,7 @@
       [ui/table-cell {:key "chk"}
        [ui/checkbox {:checked is-selected :id (str "catrow-" (:id cat))}]]
       [ui/table-cell {:key "cat"} (:name cat)]
-      [ui/table-cell {:key "tot"} (reduce + (map (fn[v] (js/parseFloat (:amount v))) (bookings-with-category cat bookings)) )]
+      [ui/table-cell {:key "tot"} (format-money (total-amount-for-category cat bookings))]
   ]))
 
 
