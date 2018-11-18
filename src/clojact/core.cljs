@@ -62,89 +62,89 @@
                        {:id 9 :name "Camping"})
      :bookings (vector 
       {:id 1
-       :date "01.01.2001"
+       :date "01"
        :category {:id 1 :name "Food"}
        :comment "...."
        :amount 82.21}
       {:id 2
-       :date "02.01.2001"
+       :date "02"
        :category {:id 2 :name "Rent"}
        :comment "...."
        :amount 820
       }
       {:id 3
-       :date "03.01.2001"
+       :date "03"
        :category {:id 1 :name "Food"}
        :comment "...."
        :amount 82.21}
       {:id 4
-       :date "04.01.2001"
+       :date "04"
        :category {:id 2 :name "Rent"}
        :comment "...."
        :amount 820
       }
       {:id 5
-       :date "05.01.2001"
+       :date "05"
        :category {:id 1 :name "Food"}
        :comment "...."
        :amount 82.21}
       {:id 6
-       :date "06.01.2001"
+       :date "06"
        :category {:id 2 :name "Rent"}
        :comment "...."
        :amount 820
       }
       {:id 7
-       :date "07.01.2001"
+       :date "07"
        :category {:id 1 :name "Food"}
        :comment "...."
        :amount 82.21}
       {:id 8
-       :date "08.01.2001"
+       :date "08"
        :category {:id 2 :name "Rent"}
        :comment "...."
        :amount 820
       }
       {:id 9
-       :date "09.01.2001"
+       :date "09"
        :category {:id 1 :name "Food"}
        :comment "...."
        :amount 82.21}
       {:id 10
-       :date "10.01.2001"
+       :date "10"
        :category {:id 2 :name "Rent"}
        :comment "...."
        :amount 820
       }
       {:id 11
-       :date "11.01.2001"
+       :date "11"
        :category {:id 1 :name "Food"}
        :comment "...."
        :amount 82.21}
       {:id 12
-       :date "12.01.2001"
+       :date "12"
        :category {:id 2 :name "Rent"}
        :comment "...."
        :amount 820
       }
       {:id 13
-       :date "13.01.2001"
+       :date "13"
        :category {:id 1 :name "Food"}
        :comment "...."
        :amount 82.21}
       {:id 14
-       :date "14.01.2001"
+       :date "14"
        :category {:id 2 :name "Rent"}
        :comment "...."
        :amount 820
       }
       {:id 15
-       :date "15.01.2001"
+       :date "15"
        :category {:id 1 :name "Food"}
        :comment "...."
        :amount 82.21}
       {:id 16
-       :date "16.01.2001"
+       :date "16"
        :category {:id 2 :name "Rent"}
        :comment "...."
        :amount 820
@@ -291,8 +291,11 @@
 	     )]
   ]]))
 
-(defn has-category[booking cat]
+(defn has-category[cat booking]
 (matches :id cat (:category booking)))
+
+(defn bookings-with-category [cat bookings] 
+  (filter (partial has-category cat) bookings))
 
 (defn category-table-row 
   [cat selected-category bookings]
@@ -304,10 +307,9 @@
                                               ;so that key events can be used
               :className (when is-selected "highlighted-row")}
       [ui/table-cell {:key "chk"}
-       [ui/checkbox {:checked is-selected 
-                     :id (str "catrow-" (:id cat))}]]
+       [ui/checkbox {:checked is-selected :id (str "catrow-" (:id cat))}]]
       [ui/table-cell {:key "cat"} (:name cat)]
-      [ui/table-cell {:key "tot"} (reduce + (map (fn[v] (js/parseFloat (:amount v))) (filter (fn[b] (has-category b cat)) bookings)) )]
+      [ui/table-cell {:key "tot"} (reduce + (map (fn[v] (js/parseFloat (:amount v))) (bookings-with-category cat bookings)) )]
   ]))
 
 
