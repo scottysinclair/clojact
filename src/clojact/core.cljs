@@ -7,10 +7,9 @@
    [clojure.string :as str]
    [goog.string :as gstring]
    [goog.string.format]
+   [clojact.reframe :as crf]
+   [clojact.util :as util]
    ))
-
-;(println "IC" icons)
-;(println icons)
 
 ;;material ui
 (def el reagent/as-element)
@@ -25,253 +24,33 @@
                                                           :primary2Color (color "green")})
                                    clj->js))})
 
-
-;true if the both maps have the same value for the given label
-(defn matches [label mapA mapB]
-  (= (label mapA) (label mapB)))
-
-;updates a property of a booking
-(defn updateBooking
-  [db booking prop-key prop-value]
-  (let [index (.indexOf (get db :bookings) booking)]
-     (assoc-in db  [:bookings index prop-key] prop-value)))
-
-(defn pap [x] (println x) x) 
-
-(defn get-category-by-id
-  [db id]
-  (some #(when (= id (:id %)) %) 
-        (get db :all-categories)))
-
-(defn format-money [amount]
-   (let [amount-str (str amount)
-         len (count amount-str)]
-     (cond (or (= amount 0) (= amount ""))
-           amount-str
-        :else
-        (str (subs amount-str 0 (- len 2)) "," (subs amount-str (- len 2)))))) 
+;;View Functions ----------------------------------------------
 
 
-;; -- Domino 2 - Event Handlers -----------------------------------------------
-(rf/reg-event-db              ;; sets up initial application state
-  :initialize                 ;; usage:  (dispatch [:initialize])
-  (fn [_ _]                   ;; the two parameters are not important here, so use _
-    {:time (js/Date.)         ;; What it returns becomes the new application state
-     :time-color "#f88"
-     :drawer-open false
-     :selected-category nil
-     :all-categories (vector 
-                       {:id 1 :name "Food"} 
-                       {:id 2 :name "Rent"} 
-                       {:id 3 :name "Lunch"}
-                       {:id 4 :name "Travel"}
-                       {:id 5 :name "Car"}
-                       {:id 6 :name "School"}
-                       {:id 7 :name "Birthdays"}
-                       {:id 8 :name "Christmas"}
-                       {:id 9 :name "Camping"})
-     :bookings (vector 
-      {:id 1
-       :date "01"
-       :category {:id 1 :name "Food"}
-       :comment "...."
-       :amount 8221}
-      {:id 2
-       :date "02"
-       :category {:id 2 :name "Rent"}
-       :comment "...."
-       :amount 82000
-      }
-      {:id 3
-       :date "03"
-       :category {:id 1 :name "Food"}
-       :comment "...."
-       :amount 8221}
-      {:id 4
-       :date "04"
-       :category {:id 2 :name "Rent"}
-       :comment "...."
-       :amount 82000
-      }
-      {:id 5
-       :date "05"
-       :category {:id 1 :name "Food"}
-       :comment "...."
-       :amount 8221}
-      {:id 6
-       :date "06"
-       :category {:id 2 :name "Rent"}
-       :comment "...."
-       :amount 82000
-      }
-      {:id 7
-       :date "07"
-       :category {:id 1 :name "Food"}
-       :comment "...."
-       :amount 8221}
-      {:id 8
-       :date "08"
-       :category {:id 2 :name "Rent"}
-       :comment "...."
-       :amount 82000
-      }
-      {:id 9
-       :date "09"
-       :category {:id 1 :name "Food"}
-       :comment "...."
-       :amount 8221}
-      {:id 10
-       :date "10"
-       :category {:id 2 :name "Rent"}
-       :comment "...."
-       :amount 82000
-      }
-      {:id 11
-       :date "11"
-       :category {:id 1 :name "Food"}
-       :comment "...."
-       :amount 8221}
-      {:id 12
-       :date "12"
-       :category {:id 2 :name "Rent"}
-       :comment "...."
-       :amount 82000
-      }
-      {:id 13
-       :date "13"
-       :category {:id 1 :name "Food"}
-       :comment "...."
-       :amount 8221}
-      {:id 14
-       :date "14"
-       :category {:id 2 :name "Rent"}
-       :comment "...."
-       :amount 82000
-      }
-      {:id 15
-       :date "15"
-       :category {:id 1 :name "Food"}
-       :comment "...."
-       :amount 8221}
-      {:id 16
-       :date "16"
-       :category {:id 2 :name "Rent"}
-       :comment "...."
-       :amount 82000
-      }
-      )}))
+(defn time-period-control[]
+  [ui/paper {:key "time-period-control" }
+   [ui/button {:variant "contained"}"previous"]
+   [:span " October 2018 <============> Noveber 2018 " ]
+   [ui/button {:variant "contained"} "next"]
+   [:span "extend"]
+   [ui/switch]
+   ])
 
-          ;; so the application state will initially be a map with two keys
-(rf/reg-event-db                ;;the drawer open state is switched.
-   :toggle-app-drawer
-   (fn [db _]
-     (assoc db :drawer-open (not (get db :drawer-open)))
-   ))
-
-(rf/reg-event-db
-    :booking-change
-   (fn [db event]
-     (let [booking (get event 1) ;the booking which is changing
-           field   (get event 2) ; the booking field which is changing
-           event-value (get event 3) ; the value from the ui compponent
-           lookup-funct (or (get event 4) (fn [db value] value))] ;optional lookup conversion.
-        (updateBooking db booking field (lookup-funct db event-value)))))
-
-
-(rf/reg-event-db
-  :category-selected
-  (fn [db event]
-    (let [cat (get event 1)]
-    (println "row selected " event)
-    (assoc db :selected-category cat))))
-
-(defn get-prev-or-next-cat [categories inc-or-dec cat]
-  (get categories(inc-or-dec (.indexOf categories cat))))
-
-(rf/reg-event-db
-  :set-focus
-  (fn [db event]
-    (let [dom-element (get event 1)]
-      (.focus dom-element)
-    db)))
-
-
-
-
-
-(let [select-n-o-p-category 
-		  (fn [db element-id inc-or-dec];helper to select next or previous category
-		          (let [category-id (subs element-id 7)
-		                cat (get-category-by-id db (int category-id))
-		                next-cat (get-prev-or-next-cat (:all-categories db) inc-or-dec cat)] ;		                
-		           (println "CHANGE SELCAT " cat next-cat) 
-		           (rf/dispatch [:set-focus (js/document.getElementById (str "catrow-" (:id next-cat)))]) ;hack switch focus to next rows checkbox
-		            (assoc db :selected-category next-cat)))
-    ]
-  
-(defn select-next-category
-  [db element-id]
-  (select-n-o-p-category db element-id inc))
-
-(defn select-prev-category
-  [db element-id]
-  (select-n-o-p-category db element-id dec))
-)
-
-
-(rf/reg-event-db
-  :doc-key-press
-  (fn [db event]
-    (let [element-id (get event 1)
-          key-code (get event 2)]
-    (println "KEY PRESS" event element-id key-code) 
-    (cond (= key-code 40)
-	    (cond (= (subs element-id 0 7) "catrow-") 
-           (select-next-category db element-id)
-	          :else db)
-     :else 
-     (cond (= key-code 38)
-	     (cond (= (subs element-id 0 7) "catrow-") 
-            (select-prev-category db element-id)
-	           :else db)
-      :else db)))))
-
-;; -- Domino 4 - Query  -------------------------------------------------------
-(rf/reg-sub
-  :drawer-open
-  (fn [db _]
-    (:drawer-open db)))
-
-(rf/reg-sub
-  :bookings
-  (fn [db _]
-    (:bookings db)))
-
-(rf/reg-sub
-  :all-categories
-  (fn [db _]
-    (:all-categories db)))
-
-(rf/reg-sub
-  :selected-category
-  (fn [db _]
-    (:selected-category db)))
-
-;; -- Domino 5 - View Functions ----------------------------------------------
 
 (defn category-select-field
   [booking]
   (let [cat-list @(rf/subscribe [:all-categories])
         category (get booking :category)]
 	  [ui/select { :value (:id category) 
-                 :onChange #(rf/dispatch [:booking-change booking :category (-> % .-target .-value) get-category-by-id])  }
+                 :onChange #(rf/dispatch [:booking-change booking :category (-> % .-target .-value) util/get-category-by-id])  }
     (for [cat  cat-list]
 	   [ui/menu-item { :key (:id cat)  :value (:id cat) }(:name cat)])]))
 
 
+
 (defn booking-table-row
    [booking selected-category]
-   (let [is-selected (matches :id (:category booking)  selected-category) ] 
+   (let [is-selected (util/matches :id (:category booking)  selected-category) ] 
      [ui/table-row {:key (:id booking) :className (when is-selected "highlighted-row")}
 		    [ui/table-cell {:key "date"} [ui/text-field {:value (get booking :date) 
                                                    :onChange #(rf/dispatch [:booking-change booking :date (-> % .-target .-value)]) }]]
@@ -281,6 +60,7 @@
 		    [ui/table-cell {:key "amount"} [ui/text-field {:value (get booking :amount) 
                                        :onChange #(rf/dispatch [:booking-change booking :amount  (-> % .-target .-value)]) }]]
 	    ]))
+
 
 (defn booking-table
   []
@@ -301,19 +81,11 @@
 	     )]
   ]]))
 
-(defn has-category[cat booking]
-(matches :id cat (:category booking)))
-
-(defn bookings-with-category [cat bookings] 
-  (filter (partial has-category cat) bookings))
-
-(defn total-amount-for-category [cat bookings]
- (reduce + (map :amount (bookings-with-category cat bookings)) ))
 
 
 (defn category-table-row 
   [cat selected-category bookings]
- (let [is-selected (matches :id cat selected-category) ] 
+ (let [is-selected (util/matches :id cat selected-category) ] 
   [ui/table-row {
               :key (:id cat) 
               :on-click (fn [event] (rf/dispatch [:category-selected cat]) ;dispatch state event
@@ -323,7 +95,7 @@
       [ui/table-cell {:key "chk"}
        [ui/checkbox {:checked is-selected :id (str "catrow-" (:id cat))}]]
       [ui/table-cell {:key "cat"} (:name cat)]
-      [ui/table-cell {:key "tot"} (format-money (total-amount-for-category cat bookings))]
+      [ui/table-cell {:key "tot"} (util/format-money (util/total-amount-for-category cat bookings))]
   ]))
 
 
@@ -345,15 +117,6 @@
           (category-table-row cat selected-category bookings ))
 	     ]
      ]]))
-
-(defn time-period-control[]
-  [ui/paper {:key "time-period-control" }
-   [ui/button {:variant "contained"}"previous"]
-   [:span " October 2018 <============> Noveber 2018 " ]
-   [ui/button {:variant "contained"} "next"]
-   [:span "extend"]
-   [ui/switch]
-   ])
 
 (defn booking-page
    []
@@ -402,7 +165,6 @@
 
 (defn get-app-element []
   (gdom/getElement "app"))
-
 
 
 (defn mount [el]
