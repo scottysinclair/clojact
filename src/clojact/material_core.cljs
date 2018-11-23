@@ -28,6 +28,9 @@
 (def select (r/adapt-react-class (aget js/MaterialUI "Select")))
 (def menu-item (r/adapt-react-class (aget js/MaterialUI "MenuItem")))
 (def checkbox (r/adapt-react-class (aget js/MaterialUI "Checkbox")))
+(def button (r/adapt-react-class (aget js/MaterialUI "Button")))
+(def icon (r/adapt-react-class (aget js/MaterialUI "Icon")))
+(def switch (r/adapt-react-class (aget js/MaterialUI "Switch")))
 
 
 (def ic-menu (r/adapt-react-class (aget js/MaterialUIIcons "Menu")))

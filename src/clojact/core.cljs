@@ -22,7 +22,8 @@
                                 (-> ui/lightBaseTheme
                                    (js->clj :keywordize-keys true)
                                    (update :palette merge {:primary1Color (color "red")
-                                                          :primary2Color (color "green")})                                      clj->js))})
+                                                          :primary2Color (color "green")})
+                                   clj->js))})
 
 
 ;true if the both maps have the same value for the given label
@@ -345,10 +346,20 @@
 	     ]
      ]]))
 
+(defn time-period-control[]
+  [ui/paper {:key "time-period-control" }
+   [ui/button {:variant "contained"}"previous"]
+   [:span " October 2018 <============> Noveber 2018 " ]
+   [ui/button {:variant "contained"} "next"]
+   [:span "extend"]
+   [ui/switch]
+   ])
+
 (defn booking-page
    []
    [ui/grid {:container true :spacing 0}
     [ui/grid {:item true :xs "auto"}
+     [time-period-control]
 	   [booking-table]]
     [ui/grid {:item true :xs 3}
 	   [category-table]]
