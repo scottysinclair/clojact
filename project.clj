@@ -12,7 +12,11 @@
                  [cljsjs/material-ui "3.2.0-0" :exclusions [cljsjs/react cljsjs/react-dom]]
                  [cljsjs/material-ui-icons "3.0.1-0" :exclusions [cljsjs/react cljsjs/react-dom]]
                  [camel-snake-kebab "0.4.0"]
-                 [re-frame "0.10.6" :exclusions [reagent]]]
+                 [re-frame "0.10.6" :exclusions [reagent]]
+                 [day8.re-frame/http-fx "0.1.6"]
+                 [cljs-ajax "0.7.5"]                 
+                 [com.andrewmcveigh/cljs-time "0.5.2"]]
+
 
   :plugins [[lein2-eclipse "2.0.0"]
             [lein-cljsbuild "1.1.7"]]

@@ -32,8 +32,6 @@
    [ui/button {:variant "contained"}"previous"]
    [:span " October 2018 <============> Noveber 2018 " ]
    [ui/button {:variant "contained"} "next"]
-   [:span "extend"]
-   [ui/switch]
    ])
 
 

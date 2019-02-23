@@ -4,29 +4,49 @@
    [clojact.material-core :as ui]
    [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
+   [day8.re-frame.http-fx :as rfx]
+   [ajax.core :as ajax]
    [clojure.string :as str]
    [goog.string :as gstring]
    [goog.string.format]
-   [clojact.util :as util]
-))
+   [clojact.util :as util]))
+
+
+
+(rf/reg-event-fx                             ;; note the trailing -fx
+  :initialize                      ;; usage:  (dispatch [:handler-with-http])
+  (fn [{:keys [db]} _]                    ;; the first param will be "world"
+    {:db   (assoc db :show-twirly true)   ;; causes the twirly-waiting-dialog to show??
+     :http-xhrio {:method          :get
+                  :uri             "/graph/exec"
+                  :params          {:query "{ categorys { id name } }"}
+                  :timeout         8000                                           ;; optional see API docs
+                  :response-format (ajax/json-response-format {:keywords? true})  ;; IMPORTANT!: You must provide this.
+                  :on-success      [:initialize2 ]}}))
+;                  :on-failure      [:bad-http-result]}}))
+
 
 (rf/reg-event-db              ;; sets up initial application state
-  :initialize                 ;; usage:  (dispatch [:initialize])
-  (fn [_ _]                   ;; the two parameters are not important here, so use _
+  :initialize2                 ;; usage:  (dispatch [:initialize])
+  (fn [db [_ result]]                   ;; the two parameters are not important here, so use _
+    (prn result)
     {:time (js/Date.)         ;; What it returns becomes the new application state
      :time-color "#f88"
      :drawer-open false
      :selected-category nil
-     :all-categories (vector 
-                       {:id 1 :name "Food"} 
-                       {:id 2 :name "Rent"} 
-                       {:id 3 :name "Lunch"}
-                       {:id 4 :name "Travel"}
-                       {:id 5 :name "Car"}
-                       {:id 6 :name "School"}
-                       {:id 7 :name "Birthdays"}
-                       {:id 8 :name "Christmas"}
-                       {:id 9 :name "Camping"})
+     :all-categories (:categorys result)
+     :months (vector {:id 1 :name "January"}
+                     {:id 2 :name "February"}
+                     {:id 3 :name "March"}
+                     {:id 4 :name "April"}
+                     {:id 5 :name "May"}
+                     {:id 6 :name "June"}
+                     {:id 7 :name "July"}
+                     {:id 8 :name "August"}
+                     {:id 9 :name "September"}
+                     {:id 10 :name "October"}
+                     {:id 11 :name "November"}
+                     {:id 12 :name "December"})
      :bookings (vector 
       {:id 1
        :date "01"
@@ -141,6 +161,20 @@
     (let [cat (get event 1)]
     (println "row selected " event)
     (assoc db :selected-category cat))))
+
+(rf/reg-event-db
+  :loaded-categories
+  (fn [db categories]
+    (assoc db :all-categories (vector 
+                       {:id 1 :name "Food"} 
+                       {:id 2 :name "Rent"} 
+                       {:id 3 :name "Lunch"}
+                       {:id 4 :name "Travel"}
+                       {:id 5 :name "Car"}
+                       {:id 6 :name "School"}
+                       {:id 7 :name "Birthdays"}
+                       {:id 8 :name "Christmas"}
+                       {:id 9 :name "Camping"}))))
 
 (rf/reg-event-db
   :set-focus
