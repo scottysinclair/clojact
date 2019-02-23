@@ -19,7 +19,15 @@
     {:db   (assoc db :show-twirly true)   ;; causes the twirly-waiting-dialog to show??
      :http-xhrio {:method          :get
                   :uri             "/graph/exec"
-                  :params          {:query "{ categorys { id name } }"}
+                  :params          {:query (clojure.string/join [
+                                                  "{" 
+                                                  " categorys { id name }  "
+                                                  " transactions: transactionsInMonth"
+                                                  "    (fromDate:  \"01-10-2014\" toDate: \"01-11-2014\")" 
+                                                  " {"
+                                                  "    id date amount category { id name   } comment"
+                                                  " }"
+                                                  "}"])}
                   :timeout         8000                                           ;; optional see API docs
                   :response-format (ajax/json-response-format {:keywords? true})  ;; IMPORTANT!: You must provide this.
                   :on-success      [:initialize2 ]}}))
@@ -47,7 +55,8 @@
                      {:id 10 :name "October"}
                      {:id 11 :name "November"}
                      {:id 12 :name "December"})
-     :bookings (vector 
+     :bookings (:transactions result)
+     :bookings-x (vector 
       {:id 1
        :date "01"
        :category {:id 1 :name "Food"}

@@ -96,22 +96,25 @@
       [ui/table-cell {:key "tot"} (util/format-money (util/total-amount-for-category cat bookings))]
   ]))
 
+(defn category-has-amount-value [bookings cat]
+  (not= 0 (util/total-amount-for-category cat bookings)))
 
 (defn category-table
   []
   (let [categories @(rf/subscribe [:all-categories])
         selected-category @(rf/subscribe [:selected-category])
-        bookings @(rf/subscribe [:bookings])]
+        bookings @(rf/subscribe [:bookings])
+        show-cat (partial category-has-amount-value bookings)]
   [ui/paper {:key "cat-table" :class "category-table"}
   [ui/table
    [ui/table-head 
    [ui/table-row {:key (get :id cat) }
-	     [ui/table-cell {:key "sel"}"Selected"]
-	     [ui/table-cell {:key "cat"} "Category"]
-	     [ui/table-cell {:key "tot"} "Total"]
+	     [ui/table-cell {:key "sel" } "Selected"]
+	     [ui/table-cell {:key "cat" } "Category"]
+	     [ui/table-cell {:key "tot" } "Total"]
    ]]
     [ui/table-body
-        (for [cat categories] 
+        (for [cat (filter show-cat categories)] 
           (category-table-row cat selected-category bookings ))
 	     ]
      ]]))
