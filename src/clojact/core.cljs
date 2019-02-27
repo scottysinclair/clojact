@@ -97,6 +97,7 @@
   ]))
 
 
+
 (defn category-table
   []
   (let [categories @(rf/subscribe [:all-categories])
@@ -116,6 +117,8 @@
 	     ]
      ]]))
 
+
+;;the whole booking page
 (defn booking-page
    []
    [ui/grid {:container true :spacing 0}
@@ -127,6 +130,7 @@
    ])
 
 
+;;side popout drawer
 (defn drawer
   []
   [ui/drawer {:open @(rf/subscribe [:drawer-open]) :docked true}
