@@ -49,7 +49,7 @@
 (defn booking-table-row
    [booking selected-category]
    (let [is-selected (util/matches :id (:category booking)  selected-category) ] 
-     [ui/table-row {:key (:id booking) :className (when is-selected "highlighted-row")}
+     [ui/table-row {:className (when is-selected "highlighted-row")}
 		    [ui/table-cell {:key "date"} [ui/text-field {:value (get booking :date) 
                                                    :onChange #(rf/dispatch [:booking-change booking :date (-> % .-target .-value)]) }]]
 		    [ui/table-cell {:key "cat"} [category-select-field booking]]
@@ -75,7 +75,7 @@
 	    ]]
 	    [ui/table-body
         (for [booking bookings]
-            [booking-table-row booking selected-category]
+            ^{:key (:id booking)} [booking-table-row booking selected-category]
 	     )]
   ]]))
 
@@ -96,15 +96,12 @@
       [ui/table-cell {:key "tot"} (util/format-money (util/total-amount-for-category cat bookings))]
   ]))
 
-(defn category-has-amount-value [bookings cat]
-  (not= 0 (util/total-amount-for-category cat bookings)))
 
 (defn category-table
   []
   (let [categories @(rf/subscribe [:all-categories])
         selected-category @(rf/subscribe [:selected-category])
-        bookings @(rf/subscribe [:bookings])
-        show-cat (partial category-has-amount-value bookings)]
+        bookings @(rf/subscribe [:bookings])]
   [ui/paper {:key "cat-table" :class "category-table"}
   [ui/table
    [ui/table-head 
@@ -114,7 +111,7 @@
 	     [ui/table-cell {:key "tot" } "Total"]
    ]]
     [ui/table-body
-        (for [cat (filter show-cat categories)] 
+        (for [cat (util/categories-with-value bookings categories)] 
           (category-table-row cat selected-category bookings ))
 	     ]
      ]]))
@@ -169,7 +166,7 @@
 
 
 (defn mount [el]
-  (rf/dispatch-sync [:initialize]) 
+  (rf/dispatch-sync [:initialize-static]) 
   (reagent/render-component [ui] el))
 
 (defn mount-app-element []

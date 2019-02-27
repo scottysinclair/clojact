@@ -14,7 +14,7 @@
 
 
 (rf/reg-event-fx                             ;; note the trailing -fx
-  :initialize                      ;; usage:  (dispatch [:handler-with-http])
+  :initialize-load                      ;; usage:  (dispatch [:handler-with-http])
   (fn [{:keys [db]} _]                    ;; the first param will be "world"
     {:db   (assoc db :show-twirly true)   ;; causes the twirly-waiting-dialog to show??
      :http-xhrio {:method          :get
@@ -30,14 +30,13 @@
                                                   "}"])}
                   :timeout         8000                                           ;; optional see API docs
                   :response-format (ajax/json-response-format {:keywords? true})  ;; IMPORTANT!: You must provide this.
-                  :on-success      [:initialize2 ]}}))
+                  :on-success      [:initialize-from-srv ]}}))
 ;                  :on-failure      [:bad-http-result]}}))
 
 
 (rf/reg-event-db              ;; sets up initial application state
-  :initialize2                 ;; usage:  (dispatch [:initialize])
+  :initialize-from-srv                 ;; usage:  (dispatch [:initialize])
   (fn [db [_ result]]                   ;; the two parameters are not important here, so use _
-    (prn result)
     {:time (js/Date.)         ;; What it returns becomes the new application state
      :time-color "#f88"
      :drawer-open false
@@ -55,8 +54,40 @@
                      {:id 10 :name "October"}
                      {:id 11 :name "November"}
                      {:id 12 :name "December"})
-     :bookings (:transactions result)
-     :bookings-x (vector 
+     :bookings (:transactions result)}))
+
+
+(rf/reg-event-db              ;; sets up initial application state
+  :initialize-static                 ;; usage:  (dispatch [:initialize])
+  (fn [db [_ result]]                   ;; the two parameters are not important here, so use _
+    (prn result)
+    {:time (js/Date.)         ;; What it returns becomes the new application state
+     :time-color "#f88"
+     :drawer-open false
+     :selected-category nil
+     :all-categories (vector 
+                       {:id 1 :name "Food"} 
+                       {:id 2 :name "Rent"} 
+                       {:id 3 :name "Lunch"}
+                       {:id 4 :name "Travel"}
+                       {:id 5 :name "Car"}
+                       {:id 6 :name "School"}
+                       {:id 7 :name "Birthdays"}
+                       {:id 8 :name "Christmas"}
+                       {:id 9 :name "Camping"})
+     :months (vector {:id 1 :name "January"}
+                     {:id 2 :name "February"}
+                     {:id 3 :name "March"}
+                     {:id 4 :name "April"}
+                     {:id 5 :name "May"}
+                     {:id 6 :name "June"}
+                     {:id 7 :name "July"}
+                     {:id 8 :name "August"}
+                     {:id 9 :name "September"}
+                     {:id 10 :name "October"}
+                     {:id 11 :name "November"}
+                     {:id 12 :name "December"})
+     :bookings (vector 
       {:id 1
        :date "01"
        :category {:id 1 :name "Food"}
@@ -75,7 +106,7 @@
        :amount 8221}
       {:id 4
        :date "04"
-       :category {:id 2 :name "Rent"}
+       :category {:id 4 :name "Travel"}
        :comment "...."
        :amount 82000
       }
@@ -146,6 +177,10 @@
        :amount 82000
       }
       )}))
+
+
+
+
 
           ;; so the application state will initially be a map with two keys
 (rf/reg-event-db                ;;the drawer open state is switched.
