@@ -54,7 +54,9 @@
                      {:id 10 :name "October"}
                      {:id 11 :name "November"}
                      {:id 12 :name "December"})
-     :bookings (:transactions result)}))
+     :bookings (:transactions result)
+     :current-month { :month 1 :year 2018 }
+     }))
 
 
 (rf/reg-event-db              ;; sets up initial application state
@@ -176,9 +178,9 @@
        :comment "...."
        :amount 82000
       }
-      )}))
-
-
+      )
+     :current-month { :month 2 :year 2018 }
+     }))
 
 
 
@@ -188,6 +190,18 @@
    (fn [db _]
      (assoc db :drawer-open (not (get db :drawer-open)))
    ))
+
+(rf/reg-event-db
+  :prev-month
+  (fn [db _]
+      (prn "prev month")
+      (util/decrement-current-month db)))
+
+(rf/reg-event-db
+  :next-month
+  (fn [db _]
+      (prn "next month")
+      (util/increment-current-month db)))
 
 (rf/reg-event-db
     :booking-change
@@ -244,6 +258,7 @@
 	           :else db)
       :else db)))))
 
+
 ;; Query  -------------------------------------------------------
 (rf/reg-sub
   :drawer-open
@@ -264,4 +279,13 @@
   :selected-category
   (fn [db _]
     (:selected-category db)))
+
+(rf/reg-sub
+  :current-month
+  (fn [db _]
+ ;     (prn "CM"(:current-month db))
+      (let [current-month (:month (:current-month db))
+            month (util/get-month-by-id db current-month )]
+           (prn "FOUND " month)
+           {:text (str (:name month) " "(:year (:current-month db)))})))
 

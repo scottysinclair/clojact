@@ -27,13 +27,15 @@
 ;;View Functions ----------------------------------------------
 
 
-(defn time-period-control[]
-  [ui/paper {:key "time-period-control" }
-   [ui/button {:variant "contained"}"previous"]
-   [:span " October 2018 <============> Noveber 2018 " ]
-   [ui/button {:variant "contained"} "next"]
-   ])
-
+(defn time-period-control
+      []
+      (let [current-month @(rf/subscribe [:current-month])]
+            [ui/paper {:key "time-period-control" }
+             [ui/button {:variant "contained"
+                         :onClick #(rf/dispatch [:prev-month])} [ui/ic-arrow-back]]
+             [:span (:text current-month) ]
+             [ui/button {:variant "contained"
+                         :onClick #(rf/dispatch [:next-month])} [ui/ic-arrow-forward]]]))
 
 (defn category-select-field
   [booking]

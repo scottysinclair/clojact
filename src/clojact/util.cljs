@@ -22,6 +22,29 @@
   (some #(when (= id  (:id %)) %) 
         (get db :all-categories)))
 
+(defn get-month-by-id
+      [db id]
+      ;      (prn "getm " id)
+      (some #(when (= id  (:id %)) %)
+            (get db :months)))
+
+(defn decrement-current-month
+      [db]
+      (let [current-month-data (:current-month db)
+            month (:month current-month-data)
+            year (:year current-month-data)
+            desired-month (if (= month 1) 12 (dec month))
+            desired-year (if (= month 1) (dec year) year)
+            ] (assoc db :current-month {:month desired-month :year desired-year})))
+
+(defn increment-current-month
+      [db]
+      (let [current-month-data (:current-month db)
+            month (:month current-month-data)
+            year (:year current-month-data)
+            desired-month (if (= month 12) 1 (inc month))
+            desired-year (if (= month 12) (inc year) year)
+            ] (assoc db :current-month {:month desired-month :year desired-year})))
 
 ;does the booking have the category?
 (defn has-category[cat booking]

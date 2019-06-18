@@ -34,6 +34,8 @@
 
 
 (def ic-menu (r/adapt-react-class (aget js/MaterialUIIcons "Menu")))
+(def ic-arrow-back (r/adapt-react-class (aget js/MaterialUIIcons "ArrowBack")))
+(def ic-arrow-forward (r/adapt-react-class (aget js/MaterialUIIcons "ArrowForward")))
 
 
 
